@@ -37,30 +37,34 @@ def sendMessage(chat_id:int, text:str):
 
 def get_message(update:Update,processed:str) -> str :
 
+    current_member = update.message.chat.id
     client = OpenAI(api_key=OPENAI_TOKEN)
-    thread = client.beta.threads.create()
-    print(thread)
+
+    if approved_users[current_member] == "":
+        thread = client.beta.threads.create()
+        approved_users[current_member] = thread.id
+        print(thread)
 
     message = client.beta.threads.messages.create(
-        thread_id=thread.id,
+        thread_id = approved_users[current_member],
         role="user",
         content= f"{processed}"
     )
 
     run = client.beta.threads.runs.create(
-        thread_id=thread.id,
+        thread_id = approved_users[current_member],
         assistant_id = "asst_cxbjvIh6pDIJP7p7uK3Ol3fv"
     )
 
     while run.status == 'queued' or run.status == 'in_progress':
 
         run = client.beta.threads.runs.retrieve(
-        thread_id= thread.id,
+        thread_id= approved_users[current_member],
         run_id = run.id
     )  
 
     messages = client.beta.threads.messages.list(
-        thread_id=thread.id
+        thread_id = approved_users[current_member]
     )
 
     for messages in messages.data:
@@ -94,26 +98,25 @@ def handle_response(update:Update, text: str) -> str:
 
     processed: str = text.lower()
     input_pass = update.message.text
-    
+    member = False
 
     current_member = update.message.chat.id
-    print(current_member)
 
-    if password in input_pass:
-        approved_users.append(update.message.chat.id)
-        print(approved_users)
- 
+    if password in input_pass and member == False:
+        approved_users.update({current_member:""})
+        
+    print(approved_users)
+
     if current_member in approved_users:
         member = True
     else:
         member = False
-    
 
     if password in processed:
         return "You have successfully registered!"
     
-    if member == False:
-        return "Sorry You don't have access to this bot"
+    if member == False: #Catch for non approved users.
+        return "Sorry You don't have access to this bot! Please input the passwrod to continue."
 
     if 'hello' in processed:
         return "Hi! Welcome to SCDF YourWellness"
