@@ -10,6 +10,8 @@ content_ai = "You are aiding me, the platoon commander of Charlie company to pro
 
 approved_users= [ ]
 
+approved_users_thread = []
+
 current_member:int = 0
 
 password = "1234"
