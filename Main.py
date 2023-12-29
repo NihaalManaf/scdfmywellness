@@ -116,7 +116,7 @@ def handle_response(update:Update, text: str) -> str:
         return "You have successfully registered!"
     
     if member == False: #Catch for non approved users.
-        return "Sorry You don't have access to this bot! Please input the passwrod to continue."
+        return "Sorry You don't have access to this bot! Please input the password to continue."
 
     if 'hello' in processed:
         return "Hi! Welcome to SCDF YourWellness"
