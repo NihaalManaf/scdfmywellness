@@ -12,7 +12,7 @@ BOT_USERNAME = "@SCDFmyWellnessBot"
 
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Hello! Welcome to SCDF MyWellness! Please either click on the menu to find more option or simply tell us what you need!")
+    await update.message.reply_text("Hello! Welcome to SCDF MyWellness! Please either click on the menu found in the left corner to find more options or simply tell us what you need!")
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("To make this bot work, simply tell us how you are feeling or what information you need and we shall see how we can help! \n \nIf you do not have access to the bot, simply tell us the password! If you still cant gain access, please contact your supervisors!")
@@ -20,7 +20,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def upcoming_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("As this bot is a prototype, features found here may seem quite limited. However, over time you will be able to do so much more such as get alerts regarding key dates for your training!")    
 
-#test test test #4
+
 # def log_chat_id(update: Update, context: ContextTypes.DEFAULT_TYPE):
 #     global chat_id_v # Declare global variable usage
 #     chat_id_v = update.message.chat.id
