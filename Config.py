@@ -14,3 +14,5 @@ current_member:int = 0
 
 password = "1234"
 
+admin_password = "122"
+

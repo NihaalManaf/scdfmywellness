@@ -6,9 +6,12 @@ import logging
 import time
 from Config import *
 import sqlite3
+import sys
+
 
 
 openai.api_key = OPENAI_TOKEN
+bot = Bot(TOKEN)
 BOT_USERNAME = "@SCDFmyWellnessBot"
 
 
@@ -21,17 +24,28 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def upcoming_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("As this bot is a prototype, features found here may seem quite limited. However, over time you will be able to do so much more such as get alerts regarding key dates for your training!")    
 
-async def admin_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("welcome admin. Please enter the admin password to access admin functions!")
-    reply = update.message.text   
-
-    if reply == admin_password:
-        return "You have logged in as an admin"
-
-    conn = sqlite3.connect("Userbase.db")
-    conn.close()
-   
+#admin login + functions
     
+LOGIN, FUNCTION = range(2)
+user_data = {}
+
+async def admin(update:Update, context):
+    await update.message.reply_text("Welcome Admin. Please enter the password to access Admin functions")
+    return LOGIN
+
+async def admin_login(update, context):
+    user_data['password'] = update.message.text
+    await update.message.reply_text("You have entered a password! Please enter which function you would like to use!")
+    return FUNCTION
+
+async def admin_function(update, context):
+    user_data['function'] = update.message.text
+    await update.message.reply_text("Great! Let us continue to carry out that function!")
+    return ConversationHandler.END
+
+async def cancel(update, context):
+    await update.message.reply_text("Login Cancelled. Returning to Bot.")
+    return ConversationHandler.END
 
 # def log_chat_id(update: Update, context: ContextTypes.DEFAULT_TYPE):
 #     global chat_id_v # Declare global variable usage
@@ -124,19 +138,6 @@ def handle_response(update:Update, text: str) -> str:
     else:
         member = False
 
-    if '/admin' in processed: 
-        update.message.reply_text("welcome admin. Please enter the admin password to access admin functions!")
-
-        if update.message.text == admin_password:
-            update.message.reply_text("You have entered the correct password. Please type /addusers, /resetpasswords or /changedefault")
-
-            if update.message.text == "/addusers":
-                return 'ading users' #add function to add users
-            if update.message.text == '/resetpasswords':
-                return 'resetting passwords to default' #add function to reset password to defaults
-            if update.message.text == '/changedefaults':
-                return 'changing default password' #add function to change default password after storing default password in seperate database
-
     if password in processed: #may need to remove
         return "You have successfully registered!"
     
@@ -182,14 +183,26 @@ if __name__ == "__main__":
     app = ApplicationBuilder().token(TOKEN).build()
 
     #Commands
+    
     app.add_handler(CommandHandler('start',start_command))
     app.add_handler(CommandHandler('help',help_command))
     app.add_handler(CommandHandler('upcoming',upcoming_command))
-    app.add_handler(CommandHandler('admin',admin_command))
+    app.add_handler(CommandHandler('cancel',cancel))
+   
+   #conversations
+    admin_conv_handler = ConversationHandler(
+        entry_points=[CommandHandler('admin',admin)],
+        states={
+            LOGIN: [MessageHandler(filters.TEXT, admin_login)],
+            FUNCTION: [MessageHandler(filters.TEXT, admin_function)]
+        },
+        fallbacks=[CommandHandler('cancel', cancel)]
+    )
+
+    app.add_handler(admin_conv_handler)
 
     #Messages
     app.add_handler(MessageHandler(filters.TEXT, handle_message))
-   
 
     #Errors
     app.add_error_handler(error_handler)
