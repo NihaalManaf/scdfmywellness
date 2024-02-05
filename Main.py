@@ -26,21 +26,61 @@ async def upcoming_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 #admin login + functions
     
-LOGIN, FUNCTION = range(2)
+LOGIN, FUNCTION,UPDATE = range(3)
 user_data = {}
+
+def addusers(user_ics):
+    #database code 
+    return
+def resetpasswords(user_ics):
+    #database code
+    return
+def changepass(new_pass):
+    return
+
 
 async def admin(update:Update, context):
     await update.message.reply_text("Welcome Admin. Please enter the password to access Admin functions")
     return LOGIN
 
 async def admin_login(update, context):
-    user_data['password'] = update.message.text
-    await update.message.reply_text("You have entered a password! Please enter which function you would like to use!")
-    return FUNCTION
+    user_data['pass'] = update.message.text
+
+    if admin_password in user_data["pass"]:
+        await update.message.reply_text("""
+                                        
+        You have entered the correct password! Please select the function you would like to use!
+        
+        1. Addusers
+        2. ResetPasswords
+        3. Changedefault
+                                        
+        """)
+        return FUNCTION
+    else:
+        await update.message.reply_text("You have entered an invalid password. Sorry!")
+        return ConversationHandler.END
 
 async def admin_function(update, context):
     user_data['function'] = update.message.text
-    await update.message.reply_text("Great! Let us continue to carry out that function!")
+
+    await update.message.reply_text("Enter All the NRICS of the users you wish to run through the function.")
+    
+    return UPDATE
+
+async def admin_update(update, context):
+    user_data['NRICs'] = update.message.text
+    
+    if user_data["function"].strip().lower() in 'addusers':
+        addusers(user_data['NRICs'])
+
+    if user_data["function"].strip().lower() in 'resetpasswords':
+        resetpasswords(user_data['NRICs'])
+    
+    if user_data["function"].strip().lower() in 'changedefaults':
+        changepass(user_data['NRICs'])
+
+    await update.message.reply_text("You have successfully updated the database!")
     return ConversationHandler.END
 
 async def cancel(update, context):
@@ -194,7 +234,8 @@ if __name__ == "__main__":
         entry_points=[CommandHandler('admin',admin)],
         states={
             LOGIN: [MessageHandler(filters.TEXT, admin_login)],
-            FUNCTION: [MessageHandler(filters.TEXT, admin_function)]
+            FUNCTION: [MessageHandler(filters.TEXT, admin_function)],
+            UPDATE: [MessageHandler(filters.TEXT, admin_update)]
         },
         fallbacks=[CommandHandler('cancel', cancel)]
     )
