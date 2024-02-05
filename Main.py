@@ -12,7 +12,7 @@ BOT_USERNAME = "@SCDFmyWellnessBot"
 
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Hello! Welcome to SCDF MyWellness! Please either click on the menu found in the left corner to find more options or simply tell us what you need!")
+    await update.message.reply_text("Hello! Welcome to SCDF MyWellness! Please either click on the menu found in the bottom left corner to find more options or simply tell us what you need!")
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("To make this bot work, simply tell us how you are feeling or what information you need and we shall see how we can help! \n \nIf you do not have access to the bot, simply tell us the password! If you still cant gain access, please contact your supervisors!")
