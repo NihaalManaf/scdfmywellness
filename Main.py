@@ -5,6 +5,7 @@ from openai import OpenAI
 import logging
 import time
 from Config import *
+import sqlite3
 
 
 openai.api_key = OPENAI_TOKEN
@@ -19,6 +20,19 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def upcoming_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("As this bot is a prototype, features found here may seem quite limited. However, over time you will be able to do so much more such as get alerts regarding key dates for your training!")    
+
+async def admin_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("welcome admin. Please enter the admin password to access admin functions!")
+    reply = update.message.text   
+
+    if reply == admin_password:
+        return "You have logged in as an admin"
+
+    conn = sqlite3.connect("Userbase.db")
+
+    conn.close()
+   
+    
 
 # def log_chat_id(update: Update, context: ContextTypes.DEFAULT_TYPE):
 #     global chat_id_v # Declare global variable usage
@@ -111,10 +125,10 @@ def handle_response(update:Update, text: str) -> str:
     else:
         member = False
 
-    if password in processed:
+    if password in processed: #may need to remove
         return "You have successfully registered!"
     
-    if member == False: #Catch for non approved users.
+    if member == False: #Catch for non approved users. #point of entry to AI usee
         return "Sorry You don't have access to this bot! Please input the password to continue."
 
     if 'hello' in processed:
@@ -159,6 +173,7 @@ if __name__ == "__main__":
     app.add_handler(CommandHandler('start',start_command))
     app.add_handler(CommandHandler('help',help_command))
     app.add_handler(CommandHandler('upcoming',upcoming_command))
+    app.add_handler(CommandHandler('admin',admin_command))
 
     #Messages
     app.add_handler(MessageHandler(filters.TEXT, handle_message))
