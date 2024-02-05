@@ -125,7 +125,17 @@ def handle_response(update:Update, text: str) -> str:
         member = False
 
     if '/admin' in processed: 
-        return "Please enter the admin password to access admin functions"
+        update.message.reply_text("welcome admin. Please enter the admin password to access admin functions!")
+
+        if update.message.text == admin_password:
+            update.message.reply_text("You have entered the correct password. Please type /addusers, /resetpasswords or /changedefault")
+
+            if update.message.text == "/addusers":
+                return 'ading users' #add function to add users
+            if update.message.text == '/resetpasswords':
+                return 'resetting passwords to default' #add function to reset password to defaults
+            if update.message.text == '/changedefaults':
+                return 'changing default password' #add function to change default password after storing default password in seperate database
 
     if password in processed: #may need to remove
         return "You have successfully registered!"
