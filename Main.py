@@ -20,7 +20,6 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def upcoming_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("As this bot is a prototype, features found here may seem quite limited. However, over time you will be able to do so much more such as get alerts regarding key dates for your training!")    
 
-#test
 # def log_chat_id(update: Update, context: ContextTypes.DEFAULT_TYPE):
 #     global chat_id_v # Declare global variable usage
 #     chat_id_v = update.message.chat.id
