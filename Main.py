@@ -29,7 +29,6 @@ async def admin_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return "You have logged in as an admin"
 
     conn = sqlite3.connect("Userbase.db")
-
     conn.close()
    
     
@@ -124,6 +123,9 @@ def handle_response(update:Update, text: str) -> str:
         member = True
     else:
         member = False
+
+    if '/admin' in processed: 
+        return "Please enter the admin password to access admin functions"
 
     if password in processed: #may need to remove
         return "You have successfully registered!"
