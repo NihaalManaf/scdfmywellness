@@ -7,6 +7,8 @@ import time
 from Config import *
 import sqlite3
 import sys
+import re
+from datetime import datetime
 
 
 
@@ -24,79 +26,282 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def upcoming_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("As this bot is a prototype, features found here may seem quite limited. However, over time you will be able to do so much more such as get alerts regarding key dates for your training!")    
 
-#admin login + functions
+#admin login + functions ----------------------------------------------------------------------------------------------------
     
-LOGIN, FUNCTION,UPDATE = range(3)
+LOGIN, FUNCTION, DATE, INTAKE, DEF, UPDATE = range(6)
 user_data = {}
 
-def addusers(user_ics):
-    #database code 
+def NRICparser(user_ics):
+    strings = re.split('\n',user_ics)
+    user_ics = [s for s in strings if s]
+    return user_ics
+
+def addusers(user_ics, date, intake):
+    conn = sqlite3.connect('Userbase.db')
+    cursor = conn.cursor()
+
+    user_ics_a = NRICparser(user_ics)
+
+    cursor.execute("""
+        SELECT * FROM pass;
+        """)
+
+    results = cursor.fetchall()
+    for row in results:
+        defaultpass = row[0]
+
+    for i in range(0,len(user_ics_a)):
+        cursor.execute(f"""
+                        INSERT INTO user_accounts (user_ic, enlist_date, intake, password) VALUES ('{user_ics_a[i]}', '{date}', '{intake}','{defaultpass}');
+                    """)
+        
+    conn.commit()
+    conn.close()
     return
+
 def resetpasswords(user_ics):
-    #database code
+    conn = sqlite3.connect('Userbase.db')
+    cursor = conn.cursor()
+
+    user_ics_a = NRICparser(user_ics)
+
+    for i in range(0,len(user_ics_a)):
+        cursor.execute(f"""
+                        UPDATE user_accounts SET password = 'testtest' WHERE user_ic = '{user_ics_a[i]}'
+                    """)
+        
+    conn.commit()
+    conn.close()
     return
+
 def changepass(new_pass):
+    conn = sqlite3.connect('Userbase.db')
+    cursor = conn.cursor()
+
+    cursor.execute(f"""
+                        UPDATE pass SET password = '{new_pass}'
+                    """)
+        
+    conn.commit()
+    conn.close()
+
     return
 
 
+#/admin converstaion ----------------------------------------------------------------------------------------------------
 async def admin(update:Update, context):
     await update.message.reply_text("Welcome Admin. Please enter the password to access Admin functions")
     return LOGIN
 
 async def admin_login(update, context):
-    user_data['pass'] = update.message.text
+    user_data['pass'] = update.message.text.replace(" ", "").lower()
 
-    if admin_password in user_data["pass"]:
-        await update.message.reply_text("""
-                                        
-        You have entered the correct password! Please select the function you would like to use!
-        
-        1. Addusers
-        2. ResetPasswords
-        3. Changedefault
-                                        
-        """)
-        return FUNCTION
-    else:
+    if admin_password not in user_data["pass"]:
         await update.message.reply_text("You have entered an invalid password. Sorry!")
         return ConversationHandler.END
+    
+    await update.message.reply_text("""
+                                    Please select from the following functions
+    1. addusers
+    2. resetpasswords
+    3. changedefault
+                                    """)
+    
+    return FUNCTION
 
 async def admin_function(update, context):
-    user_data['function'] = update.message.text
+    user_data['function'] = update.message.text.replace(" ", "").lower()
 
-    await update.message.reply_text("Enter All the NRICS of the users you wish to run through the function.")
+    if user_data["function"] in 'addusers':
+        await update.message.reply_text("Enter the date of enlistment for the recruits! Please enter the date in the following format: YYYYMMDD ")
+        return DATE
+
+    if user_data["function"] in 'resetpasswords':
+        await update.message.reply_text("Please ensure you have the NRIC's ready by copying them directly from the excel spreadsheet. Ensure all the NRIC's are in one column and no extra lines have been copied. Type ok to acknowledge. ")
+        x= 1
+        return INTAKE
     
+    if user_data["function"] in 'changedefaults':
+        await update.message.reply_text("please enter the new default password. Please take note that the password is case sensitive! ")
+        return DEF
+    
+    await update.message.reply_text("You have not selected a valid function. Please enter the admin password and try again!") 
+    return LOGIN
+
+async def admin_date(update, context):
+    user_data['date'] = update.message.text.replace(" ", "").lower()
+    await update.message.reply_text("Please enter the intake number and type of the recruits in the following format: 171xbrt or 171brt")
+    
+    return INTAKE
+
+async def admin_intake(update, context):
+    user_data['intake'] = update.message.text.replace(" ", "").lower()
+    await update.message.reply_text("Now, please enter all the NRIC's of the users. Ensure you directly copy the full column from an excel file and paste it here!")
     return UPDATE
 
-async def admin_update(update, context):
-    user_data['NRICs'] = update.message.text
-    
-    if user_data["function"].strip().lower() in 'addusers':
-        addusers(user_data['NRICs'])
-
-    if user_data["function"].strip().lower() in 'resetpasswords':
-        resetpasswords(user_data['NRICs'])
-    
-    if user_data["function"].strip().lower() in 'changedefaults':
-        changepass(user_data['NRICs'])
+async def admin_def_update(update, context):
+    user_data['default'] = update.message.text
+    print(user_data["default"])
+    changepass(user_data["default"])
 
     await update.message.reply_text("You have successfully updated the database!")
     return ConversationHandler.END
 
-async def cancel(update, context):
+async def admin_update(update, context):
+    user_data['NRICs'] = update.message.text
+    print(user_data['function'])
+    
+    if user_data["function"] in 'addusers':
+        addusers(user_data['NRICs'], user_data['date'],user_data['intake'])
+
+    if user_data["function"] in 'resetpasswords':
+        resetpasswords(user_data['NRICs'])
+
+
+    await update.message.reply_text("You have successfully updated the database!")
+    return ConversationHandler.END
+
+async def cancel(update, context: CallbackContext):
     await update.message.reply_text("Login Cancelled. Returning to Bot.")
     return ConversationHandler.END
 
-# def log_chat_id(update: Update, context: ContextTypes.DEFAULT_TYPE):
-#     global chat_id_v # Declare global variable usage
-#     chat_id_v = update.message.chat.id
-#     return chat_id_v
-    
-# async def get_chatid(update:Update, context:ContextTypes.DEFAULT_TYPE): 
-#     message_type: str = update.message.chat.type #type of chat - Group or private
-#     text: str = update.message.text #any new message in group
-#     chat_id_v = update.message.chat.id
 
+#start of user login ----------------------------------------------------------------------------------------------------------
+
+USERNRIC, USERPASS, UPDATEPASS = range(3)
+rec_data = {}
+
+def auth_user_check(NRIC): 
+    conn = sqlite3.connect('Userbase.db')
+    cursor = conn.cursor()
+
+    cursor.execute(f"""
+    SELECT user_ic FROM user_accounts WHERE user_ic LIKE '%{NRIC}'
+    """) 
+
+    results = cursor.fetchall()
+    conn.commit()
+    conn.close()
+
+    print("auth user check works")
+
+    if len(results) == 0:
+        return False
+    else:
+        return True
+
+def auth_user_pass(NRIC, password):
+    conn = sqlite3.connect('Userbase.db')
+    cursor = conn.cursor()
+    x = 0
+
+    cursor.execute(f"""
+    SELECT password FROM user_accounts WHERE user_ic LIKE '%{NRIC}'
+    """) 
+    results = cursor.fetchall()
+
+    cursor.execute(f"""
+    SELECT password FROM pass
+    """) 
+    results2 = cursor.fetchall()
+
+    conn.commit()
+    conn.close()
+
+    print("auth user pass works")
+
+    for row in results:
+        if password == row[0]:
+            x = 1
+
+    for row in results2:
+        if password == row[0]:
+            x = 2
+    
+    return x
+
+def login_true(NRIC, chatid):
+    conn = sqlite3.connect('Userbase.db')
+    cursor = conn.cursor()
+
+    ph = rec_data["NRIC"]
+    
+    cursor.execute(f" UPDATE user_accounts SET login_status = true, tele_id = '{chatid}' WHERE user_ic LIKE '%{ph}';")
+        
+    conn.commit()
+    conn.close()
+
+    print("login true works")
+
+    return
+
+def log_query(intake, query, response):
+    conn = sqlite3.connect('Userbase.db')
+    cursor = conn.cursor()
+
+    formatted_date = datetime.now().strftime("%Y%m%d")
+
+    cursor.execute(f"""
+                    INSERT INTO eoc (date, intake, query, response) VALUES ( '{formatted_date}', '{intake}', '{query}', '{response}');
+                """)
+        
+    conn.commit()
+    conn.close()
+    return
+
+async def login(update, context):
+    await update.message.reply_text("Welcome to SCDF MyWellness! To login, Please enter the last 4 characters of your NRIC. e.g. 384G")
+    return USERNRIC
+
+async def usernric(update, context):
+    rec_data['NRIC'] = update.message.text
+
+    if auth_user_check(rec_data["NRIC"]) == True:
+        await update.message.reply_text("Please enter your password! If you are unsure of your password, please seek assitance from your supervisor")
+        return USERPASS
+    
+    await update.message.reply_text("You have not been registered in our system. Please seek assistance from your supervisor. To try again, please press /login")
+    return ConversationHandler.END
+
+async def userpass(update, context):
+    rec_data["password"] = update.message.text
+    
+    if auth_user_pass(rec_data["NRIC"], rec_data['password']) == 1:
+        await update.message.reply_text("You have successfully Logged in!")
+        chatid = update.message.chat.id
+        login_true(rec_data["NRIC"],chatid)
+        return ConversationHandler.END
+
+    elif auth_user_pass(rec_data["NRIC"], rec_data['password']) == 2:
+        await update.message.reply_text("You are logging in for the first time. Please enter a new password! (Password is case sensitive)")
+        chatid = update.message.chat.id
+        login_true(rec_data["NRIC"],chatid)
+        return UPDATEPASS
+    
+    else:
+        await update.message.reply_text("You have input an incorrect password! Please seek assistance from your supervisor. To login again, press /login")
+        return ConversationHandler.END
+    
+async def userupdate(update, context):
+    rec_data['new_password'] = update.message.text
+    conn = sqlite3.connect('Userbase.db')
+    cursor = conn.cursor()
+
+    ph = rec_data["new_password"]
+    ph2 = rec_data['NRIC']
+
+    cursor.execute(f"""
+                        UPDATE user_accounts SET password = '{ph}' WHERE user_ic LIKE '%{ph2}';
+                    """)
+        
+    conn.commit()
+    conn.close()
+
+    await update.message.reply_text("Your new password has been set and you have logged in! Please continue to use the bot to answer all of your questions!")
+    return ConversationHandler.END
+
+    
+#Regular message handlers    
 def sendMessage(chat_id:int, text:str):
     bot = Bot(token=TOKEN)
     bot.send_message(chat_id=chat_id,text=text)
@@ -147,53 +352,66 @@ def get_message(update:Update,processed:str) -> str :
     # assistant_response = response.choices[0].message.content
     # return assistant_response
 
-# async def chat_id_v(update:Update, context:ContextTypes.DEFAULT_TYPE): #used for debugging?
-#     message_type: str = update.message.chat.type #type of chat - Group or private
-#     text: str = update.message.text #any new message in group
+def check_user_login(chatid):
+    conn = sqlite3.connect('Userbase.db')
+    cursor = conn.cursor()
 
-#     if password in text:
-#         approved_users.append(update.message.chat.id)
-#         print(approved_users)
-#         current_member = update.message.chat.id
-#     else:
-#         current_member = update.message.chat.id
+    cursor.execute(f"""
+        SELECT login_status, intake FROM user_accounts WHERE tele_id = '{chatid}'
+        """) 
+    results = cursor.fetchall()
 
+    for row in results:
+        if row[0] == 1:
+            intake = row[1]
+            approved_users.update({chatid:""})
+
+            rec_dict = {"status":True, "intake": intake}
+            return rec_dict  
+        
+    rec_dict = {"status": False, "intake": ""}
+    return rec_dict          
 
 
 def handle_response(update:Update, text: str) -> str:
 
     processed: str = text.lower()
     input_pass = update.message.text
-    member = False
+    response = 'Sorry! you have not logged in! Pleae use /login to access the bot!'
 
-    current_member = update.message.chat.id
-
-    if password in input_pass and member == False:
-        approved_users.update({current_member:""})
-        
+    current_member = update.message.chat.id    
     print(approved_users)
-
-    if current_member in approved_users:
-        member = True
-    else:
-        member = False
-
-    if password in processed: #may need to remove
-        return "You have successfully registered!"
-    
-    if member == False: #Catch for non approved users. #point of entry to AI usee
-        return "Sorry You don't have access to this bot! Please input the password to continue."
 
     if 'hello' in processed:
         return "Hi! Welcome to SCDF YourWellness"
     
     if 'thanks' in processed:
         return "No Problem! Have a good day!"
+
+    #code to reduce number of queries per day per batallion per recruit to 1
+
+    # if current_member not in approved_users:
+    #     login_info = check_user_login(current_member) 
+
+    #     if login_info['status'] == False: #Catch for non approved users. #point of entry to AI use
+    #         return "Sorry You don't have access to this bot! Please use /login to login and gain access to this bot!"
+        
+    #     response = get_message(update, processed)
+    #     log_query(login_info["status"], processed, response)
+    #     print(login_info["status"], processed, response)
     
-    if '' in processed:
-        return get_message(update, processed)
-    
-    return "I'm sorry! I am a simple bot. Please stick to simple words and phrases when speaking to me! Thanks!"
+
+    login_info = check_user_login(current_member) 
+
+    if login_info['status'] == False: #Catch for non approved users. #point of entry to AI use
+            return "Sorry You don't have access to this bot! Please use /login to login and gain access to this bot!"
+
+ 
+    response = get_message(update, processed)
+    log_query(login_info["status"], processed, response)
+    print(login_info["status"], processed, response)
+
+    return response
     
 
 async def handle_message(update:Update, context:ContextTypes.DEFAULT_TYPE): #used for debugging?
@@ -218,23 +436,21 @@ async def error_handler(update:Update, context:ContextTypes.DEFAULT_TYPE):
     print(f'Update {update} caused error {context.error}')
 
 
+
+
 if __name__ == "__main__":
     print("Starting bot...")
     app = ApplicationBuilder().token(TOKEN).build()
 
-    #Commands
-    
-    app.add_handler(CommandHandler('start',start_command))
-    app.add_handler(CommandHandler('help',help_command))
-    app.add_handler(CommandHandler('upcoming',upcoming_command))
-    app.add_handler(CommandHandler('cancel',cancel))
-   
-   #conversations
+   #Conversations ----------------------------------------------------------------------------------------------------
     admin_conv_handler = ConversationHandler(
         entry_points=[CommandHandler('admin',admin)],
         states={
             LOGIN: [MessageHandler(filters.TEXT, admin_login)],
             FUNCTION: [MessageHandler(filters.TEXT, admin_function)],
+            DATE: [MessageHandler(filters.TEXT, admin_date)],
+            INTAKE: [MessageHandler(filters.TEXT, admin_intake)],
+            DEF: [MessageHandler(filters.TEXT, admin_def_update)],
             UPDATE: [MessageHandler(filters.TEXT, admin_update)]
         },
         fallbacks=[CommandHandler('cancel', cancel)]
@@ -242,10 +458,29 @@ if __name__ == "__main__":
 
     app.add_handler(admin_conv_handler)
 
-    #Messages
+    rec_login_handler = ConversationHandler(
+        entry_points=[CommandHandler('login',login)],
+        states={
+            USERNRIC: [MessageHandler(filters.TEXT, usernric)],
+            USERPASS: [MessageHandler(filters.TEXT, userpass)],
+            UPDATEPASS: [MessageHandler(filters.TEXT, userupdate)],
+            
+        },
+        fallbacks=[CommandHandler('cancel', cancel)]
+    )
+
+    app.add_handler(rec_login_handler)
+
+    #Commands ----------------------------------------------------------------------------------------------------
+    app.add_handler(CommandHandler('start',start_command))
+    app.add_handler(CommandHandler('help',help_command))
+    app.add_handler(CommandHandler('upcoming',upcoming_command))
+    app.add_handler(CommandHandler('cancel',cancel))
+
+    #Messages ----------------------------------------------------------------------------------------------------
     app.add_handler(MessageHandler(filters.TEXT, handle_message))
 
-    #Errors
+    #Errors ----------------------------------------------------------------------------------------------------
     app.add_error_handler(error_handler)
 
     print("Polling...")
