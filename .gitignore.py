@@ -21,11 +21,13 @@ cursor = conn.cursor()
 
 # cursor.execute("""
                
-#                CREATE TABLE pass (
-#                password VARCHAR(20)
+#                CREATE TABLE temp (
+#                chat_id VARCHAR(20),
+#                nric CHAR(9),
+#                pass VARCHAR(20)
 #                )
                
-#                """)
+#                 """)
 
 # cursor.execute(f"""
 #                     INSERT INTO pass (password) VALUES ('SCDF2413');

@@ -220,11 +220,11 @@ def auth_user_pass(NRIC, password):
     
     return x
 
-def login_true(NRIC, chatid):
+def login_true(chatid):
     conn = sqlite3.connect('Userbase.db')
     cursor = conn.cursor()
 
-    ph = rec_data[chatid][NRIC]
+    ph = retrieve_nric(chatid)
     
     cursor.execute(f" UPDATE user_accounts SET login_status = true, tele_id = '{chatid}' WHERE user_ic LIKE '%{ph}';")
         
@@ -253,31 +253,66 @@ async def login(update, context):
     await update.message.reply_text("Welcome to SCDF MyWellness! To login, Please enter the last 4 characters of your NRIC. e.g. 384G")
     return USERNRIC
 
-async def usernric(update, context):
-    chat_id = str(update.message.chat.id)
-    rec_data[chat_id]['NRIC'] = update.message.text
+# to add a temp row to allow user login process in temp db
+def add_temp(chatid, nric):
+    conn = sqlite3.connect('Userbase.db')
+    cursor = conn.cursor()
 
-    if auth_user_check(rec_data[chat_id]["NRIC"]) == True:
-        await update.message.reply_text("Please enter your password! If you are unsure of your password, please seek assitance from your supervisor")
+    formatted_date = datetime.now().strftime("%Y%m%d")
+
+    cursor.execute(f"""
+                    INSERT INTO temp (chat_id, NRIC, pass) VALUES ( '{chatid}', '{nric}', '');
+                """)
+        
+    conn.commit()
+    conn.close()
+    return
+
+def retrieve_nric(chatid):
+    conn = sqlite3.connect('Userbase.db')
+    cursor = conn.cursor()
+    x = 0
+
+    cursor.execute(f"""
+    SELECT nric FROM temp WHERE chat_id IS '{chatid}'
+    """) 
+    results = cursor.fetchall()
+
+    conn.commit()
+    conn.close()
+
+    for row in results:
+        return row[0]
+
+
+async def usernric(update, context):
+    chat_id = update.message.chat.id
+    text = update.message.text
+
+    if auth_user_check(text) == True:
+        await update.message.reply_text("Please enter your password! If you are unsure of your password, please seek assistance from your supervisor")
+        add_temp(chat_id, text)
         return USERPASS
     
     await update.message.reply_text("You have not been registered in our system. Please seek assistance from your supervisor. To try again, please press /login")
     return ConversationHandler.END
 
 async def userpass(update, context):
-    chat_id = str(update.message.chat.id)
-    rec_data[chat_id]["password"] = update.message.text
-    
-    if auth_user_pass(rec_data[chat_id]['NRIC'], rec_data[chat_id]["password"]) == 1:
-        await update.message.reply_text("You have successfully Logged in!")
-        chatid = str(update.message.chat.id)
-        login_true(rec_data[chatid]["NRIC"],chatid)
+
+    chat_id = update.message.chat.id
+    password = update.message.text
+    nric = retrieve_nric(chat_id)
+
+
+    if auth_user_pass(nric, password) == 1:
+        await update.message.reply_text("You have successfully logged in!")
+        chatid = update.message.chat.id
+        login_true(chatid)
         return ConversationHandler.END
 
-    elif auth_user_pass(rec_data[chat_id]['NRIC'], rec_data[chat_id]["password"]) == 2:
+    elif auth_user_pass(nric, password) == 2:
         await update.message.reply_text("You are logging in for the first time. Please enter a new password! (Password is case sensitive)")
-        chatid = str(update.message.chat.id)
-        login_true(rec_data[chatid]["NRIC"],chatid)
+        login_true(chat_id)
         return UPDATEPASS
     
     else:
@@ -285,13 +320,13 @@ async def userpass(update, context):
         return ConversationHandler.END
     
 async def userupdate(update, context):
-    chat_id = str(update.message.chat.id)
-    rec_data[chat_id]['new_password'] = update.message.text
+    chat_id = update.message.chat.id
+    password = update.message.text
     conn = sqlite3.connect('Userbase.db')
     cursor = conn.cursor()
 
-    ph = rec_data[chat_id]["new_password"]
-    ph2 = rec_data[chat_id]['NRIC']
+    ph = password
+    ph2 = retrieve_nric(chat_id)
 
     cursor.execute(f"""
                         UPDATE user_accounts SET password = '{ph}' WHERE user_ic LIKE '%{ph2}';
