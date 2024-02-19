@@ -224,7 +224,7 @@ def login_true(NRIC, chatid):
     conn = sqlite3.connect('Userbase.db')
     cursor = conn.cursor()
 
-    ph = rec_data["NRIC"]
+    ph = rec_data[chatid][NRIC]
     
     cursor.execute(f" UPDATE user_accounts SET login_status = true, tele_id = '{chatid}' WHERE user_ic LIKE '%{ph}';")
         
@@ -254,9 +254,10 @@ async def login(update, context):
     return USERNRIC
 
 async def usernric(update, context):
-    rec_data['NRIC'] = update.message.text
+    chat_id = update.message.chat.id
+    rec_data[chat_id]['NRIC'] = update.message.text
 
-    if auth_user_check(rec_data["NRIC"]) == True:
+    if auth_user_check(rec_data[chat_id]["NRIC"]) == True:
         await update.message.reply_text("Please enter your password! If you are unsure of your password, please seek assitance from your supervisor")
         return USERPASS
     
@@ -264,18 +265,19 @@ async def usernric(update, context):
     return ConversationHandler.END
 
 async def userpass(update, context):
-    rec_data["password"] = update.message.text
+    chat_id = update.message.chat.id
+    rec_data[chat_id]["password"] = update.message.text
     
-    if auth_user_pass(rec_data["NRIC"], rec_data['password']) == 1:
+    if auth_user_pass(rec_data[chat_id]['NRIC'], rec_data[chat_id]["password"]) == 1:
         await update.message.reply_text("You have successfully Logged in!")
         chatid = update.message.chat.id
-        login_true(rec_data["NRIC"],chatid)
+        login_true(rec_data[chat_id]["NRIC"],chatid)
         return ConversationHandler.END
 
-    elif auth_user_pass(rec_data["NRIC"], rec_data['password']) == 2:
+    elif auth_user_pass(rec_data[chat_id]['NRIC'], rec_data[chat_id]["password"]) == 2:
         await update.message.reply_text("You are logging in for the first time. Please enter a new password! (Password is case sensitive)")
         chatid = update.message.chat.id
-        login_true(rec_data["NRIC"],chatid)
+        login_true(rec_data[chat_id]["NRIC"],chatid)
         return UPDATEPASS
     
     else:
@@ -283,12 +285,13 @@ async def userpass(update, context):
         return ConversationHandler.END
     
 async def userupdate(update, context):
-    rec_data['new_password'] = update.message.text
+    chat_id = update.message.chat.id
+    rec_data[chat_id]['new_password'] = update.message.text
     conn = sqlite3.connect('Userbase.db')
     cursor = conn.cursor()
 
-    ph = rec_data["new_password"]
-    ph2 = rec_data['NRIC']
+    ph = rec_data[chat_id]["new_password"]
+    ph2 = rec_data[chat_id]['NRIC']
 
     cursor.execute(f"""
                         UPDATE user_accounts SET password = '{ph}' WHERE user_ic LIKE '%{ph2}';

@@ -4,7 +4,7 @@ from Main import NRICparser
 conn = sqlite3.connect('Userbase.db')
 cursor = conn.cursor()
 
-# #create table for users
+#create table for users
 
 # cursor.execute("""
                

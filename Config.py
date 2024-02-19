@@ -12,7 +12,5 @@ approved_users = {}
 
 current_member:int = 0
 
-password = "1234"
-
-admin_password = "122"
+admin_password = "P@ssw0rd@nm1313"
 
