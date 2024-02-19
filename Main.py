@@ -94,7 +94,7 @@ async def admin(update:Update, context):
     return LOGIN
 
 async def admin_login(update, context):
-    user_data['pass'] = update.message.text.replace(" ", "").lower()
+    user_data['pass'] = update.message.text
 
     if admin_password not in user_data["pass"]:
         await update.message.reply_text("You have entered an invalid password. Sorry!")
