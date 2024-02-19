@@ -271,13 +271,13 @@ async def userpass(update, context):
     if auth_user_pass(rec_data[chat_id]['NRIC'], rec_data[chat_id]["password"]) == 1:
         await update.message.reply_text("You have successfully Logged in!")
         chatid = update.message.chat.id
-        login_true(rec_data[chat_id]["NRIC"],chatid)
+        login_true(rec_data[chatid]["NRIC"],chatid)
         return ConversationHandler.END
 
     elif auth_user_pass(rec_data[chat_id]['NRIC'], rec_data[chat_id]["password"]) == 2:
         await update.message.reply_text("You are logging in for the first time. Please enter a new password! (Password is case sensitive)")
         chatid = update.message.chat.id
-        login_true(rec_data[chat_id]["NRIC"],chatid)
+        login_true(rec_data[chatid]["NRIC"],chatid)
         return UPDATEPASS
     
     else:
