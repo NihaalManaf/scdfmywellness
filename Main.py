@@ -9,6 +9,7 @@ import sqlite3
 import sys
 import re
 from datetime import datetime
+import traceback
 
 
 
@@ -28,7 +29,7 @@ async def upcoming_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 #admin login + functions ----------------------------------------------------------------------------------------------------
     
-LOGIN, FUNCTION, DATE, INTAKE, DEF, UPDATE = range(6)
+LOGIN, FUNCTION, DATE, INTAKE, DEF, UPDATES = range(6)
 user_data = {}
 
 def NRICparser(user_ics):
@@ -56,7 +57,7 @@ def addusers(user_ics, date, intake):
                     """)
         
     conn.commit()
-    conn.close()
+    conn.close() 
     return
 
 def resetpasswords(user_ics):
@@ -155,7 +156,7 @@ async def admin_date(update, context):
 async def admin_intake(update, context):
     user_data['intake'] = update.message.text.replace(" ", "").lower()
     await update.message.reply_text("Now, please enter all the NRIC's of the users. Ensure you directly copy the full column from an excel file and paste it here!")
-    return UPDATE
+    return UPDATES
 
 async def admin_def_update(update, context):
     user_data['default'] = update.message.text
@@ -489,7 +490,8 @@ async def handle_message(update:Update, context:ContextTypes.DEFAULT_TYPE): #use
     await update.message.reply_text(response)
 
 async def error_handler(update:Update, context:ContextTypes.DEFAULT_TYPE):
-    print(f'Update {update} caused error {context.error}')
+    trace = traceback.format_exc()
+    print(f'Update {update} caused error {context.error}\nTraceback:\n{trace}')
 
 
 
@@ -507,7 +509,7 @@ if __name__ == "__main__":
             DATE: [MessageHandler(filters.TEXT, admin_date)],
             INTAKE: [MessageHandler(filters.TEXT, admin_intake)],
             DEF: [MessageHandler(filters.TEXT, admin_def_update)],
-            UPDATE: [MessageHandler(filters.TEXT, admin_update)]
+            UPDATES: [MessageHandler(filters.TEXT, admin_update)]
         },
         fallbacks=[CommandHandler('cancel', cancel)]
     )
