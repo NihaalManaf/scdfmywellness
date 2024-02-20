@@ -6,6 +6,9 @@ cursor = conn.cursor()
 
 #create table for users
 
+
+
+
 # cursor.execute("""
                
 #                CREATE TABLE user_accounts (
@@ -27,6 +30,13 @@ cursor = conn.cursor()
 #                pass VARCHAR(20)
 #                )
                
+#                 """)
+
+# cursor.execute("""
+               
+#                CREATE TABLE pass (
+#                password VARCHAR(20)
+#                 )
 #                 """)
 
 # cursor.execute(f"""

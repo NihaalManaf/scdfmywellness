@@ -89,6 +89,23 @@ def changepass(new_pass):
 
 
 #/admin converstaion ----------------------------------------------------------------------------------------------------
+
+def printusers():
+    conn = sqlite3.connect('Userbase.db')
+    cursor = conn.cursor()
+
+    print("Printing user accounts")
+
+    cursor.execute("""
+    SELECT * FROM user_accounts
+    """)
+
+    results = cursor.fetchall()
+    for row in results:
+        print(row)
+
+    conn.commit()
+    conn.close()
 async def admin(update:Update, context):
     await update.message.reply_text("Welcome Admin. Please enter the password to access Admin functions")
     return LOGIN
@@ -113,6 +130,7 @@ async def admin_function(update, context):
     user_data['function'] = update.message.text.replace(" ", "").lower()
 
     if user_data["function"] in 'addusers':
+        printusers()
         await update.message.reply_text("Enter the date of enlistment for the recruits! Please enter the date in the following format: YYYYMMDD ")
         return DATE
 
