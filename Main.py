@@ -4,7 +4,6 @@ import openai
 from openai import OpenAI
 import logging
 import time
-from Config import *
 import sqlite3
 import sys
 import re
@@ -13,6 +12,7 @@ import traceback
 from pymongo import MongoClient
 from boto.s3.connection import S3Connection
 import os
+
 
 approved_users = {}
 current_member:int = 0
