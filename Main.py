@@ -11,8 +11,12 @@ import re
 from datetime import datetime
 import traceback
 from pymongo import MongoClient
+from boto.s3.connection import S3Connection
+import os
 
-
+approved_users = {}
+current_member:int = 0
+s3 = S3Connection(os.environ['S3_KEY'], os.environ['S3_SECRET'])
 
 openai.api_key = OPENAI_TOKEN
 bot = Bot(TOKEN)
