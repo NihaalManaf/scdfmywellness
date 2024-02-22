@@ -10,12 +10,23 @@ import sys
 import re
 from datetime import datetime
 import traceback
+from pymongo import MongoClient
 
 
 
 openai.api_key = OPENAI_TOKEN
 bot = Bot(TOKEN)
 BOT_USERNAME = "@SCDFmyWellnessBot"
+
+mongo = MongoClient(Mongodb_url,
+                     tls=True,
+                     tlsCertificateKeyFile='smw.pem')
+
+db = mongo['SCDFMyWellness']
+end_of_course = db["end_of_course"]
+def_pass = db["def_pass"]
+temp = db["temp"]
+user_accounts = db["user_accounts"]
 
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -38,41 +49,39 @@ def NRICparser(user_ics):
     return user_ics
 
 def addusers(user_ics, date, intake):
-    conn = sqlite3.connect('Userbase.db')
-    cursor = conn.cursor()
-
     user_ics_a = NRICparser(user_ics)
-
-    cursor.execute("""
-        SELECT * FROM pass;
-        """)
-
-    results = cursor.fetchall()
-    for row in results:
-        defaultpass = row[0]
+    cursor_mongo = def_pass.find()
+    for document in cursor_mongo:
+        defaultpass_mongo = document['_id']['pass']
 
     for i in range(0,len(user_ics_a)):
-        cursor.execute(f"""
-                        INSERT INTO user_accounts (user_ic, enlist_date, intake, password) VALUES ('{user_ics_a[i]}', '{date}', '{intake}','{defaultpass}');
-                    """)
+        user_documemt = {
+            "useric":user_ics_a[i],
+            "eslist_date": date,
+            "tele_id":"",
+            "login_status": False,
+            "password": defaultpass_mongo,
+            "intake": intake,
+            "pass_change": False
+        }
+
+        user_accounts.insert_one(user_documemt)
         
-    conn.commit()
-    conn.close() 
     return
 
 def resetpasswords(user_ics):
-    conn = sqlite3.connect('Userbase.db')
-    cursor = conn.cursor()
 
     user_ics_a = NRICparser(user_ics)
 
+    cursor_mongo = def_pass.find()
+    for document in cursor_mongo:
+        defaultpass_mongo = document['_id']['pass']
+
     for i in range(0,len(user_ics_a)):
-        cursor.execute(f"""
-                        UPDATE user_accounts SET password = 'testtest' WHERE user_ic = '{user_ics_a[i]}'
-                    """)
-        
-    conn.commit()
-    conn.close()
+        filter_mongo = {"useric" : user_ics_a[i]}
+        update_data = {"$set": {"password": defaultpass_mongo}}
+        user_accounts.update_many(filter_mongo, update_data)
+    
     return
 
 def changepass(new_pass):
@@ -82,6 +91,10 @@ def changepass(new_pass):
     cursor.execute(f"""
                         UPDATE pass SET password = '{new_pass}'
                     """)
+    
+
+    update_data = {"$set": {"password": new_pass}}
+    user_accounts.update_many({}, update_data)
         
     conn.commit()
     conn.close()
@@ -91,22 +104,6 @@ def changepass(new_pass):
 
 #/admin converstaion ----------------------------------------------------------------------------------------------------
 
-def printusers():
-    conn = sqlite3.connect('Userbase.db')
-    cursor = conn.cursor()
-
-    print("Printing user accounts")
-
-    cursor.execute("""
-    SELECT * FROM user_accounts
-    """)
-
-    results = cursor.fetchall()
-    for row in results:
-        print(row)
-
-    conn.commit()
-    conn.close()
 async def admin(update:Update, context):
     await update.message.reply_text("Welcome Admin. Please enter the password to access Admin functions")
     return LOGIN
@@ -131,8 +128,7 @@ async def admin_function(update, context):
     user_data['function'] = update.message.text.replace(" ", "").lower()
 
     if user_data["function"] in 'addusers':
-        printusers()
-        await update.message.reply_text("Enter the date of enlistment for the recruits! Please enter the date in the following format: YYYYMMDD ")
+        await update.message.reply_text("Enter the date of enlistment for the recruits! Please enter the date in the following format: DD-MM-YYYY ")
         return DATE
 
     if user_data["function"] in 'resetpasswords':
@@ -162,7 +158,6 @@ async def admin_def_update(update, context):
     user_data['default'] = update.message.text
     print(user_data["default"])
     changepass(user_data["default"])
-
     await update.message.reply_text("You have successfully updated the database!")
     return ConversationHandler.END
 
@@ -191,81 +186,60 @@ USERNRIC, USERPASS, UPDATEPASS = range(3)
 rec_data = {}
 
 def auth_user_check(NRIC): 
-    conn = sqlite3.connect('Userbase.db')
-    cursor = conn.cursor()
 
-    cursor.execute(f"""
-    SELECT user_ic FROM user_accounts WHERE user_ic LIKE '%{NRIC}'
-    """) 
+    result_mongo = 0
+    cursor_mongo = user_accounts.find({"useric": {"$regex": re.compile(NRIC, re.IGNORECASE)}})
 
-    results = cursor.fetchall()
-    conn.commit()
-    conn.close()
+    for document in cursor_mongo:
+        result_mongo = document["useric"]
 
     print("auth user check works")
 
-    if len(results) == 0:
+    if not result_mongo:
         return False
     else:
         return True
 
 def auth_user_pass(NRIC, password):
-    conn = sqlite3.connect('Userbase.db')
-    cursor = conn.cursor()
     x = 0
+    criteria = {"useric": {"$regex": re.compile(NRIC, re.IGNORECASE)}}
+    cursor_ic = user_accounts.find(criteria)
 
-    cursor.execute(f"""
-    SELECT password FROM user_accounts WHERE user_ic LIKE '%{NRIC}'
-    """) 
-    results = cursor.fetchall()
+    for document in cursor_ic:
+        pass_change = document["pass_change"]
+        user_pass = document["password"]
+        print(pass_change)
 
-    cursor.execute(f"""
-    SELECT password FROM pass
-    """) 
-    results2 = cursor.fetchall()
+    if password == user_pass:
+        print('approval')
+        x = 1
 
-    conn.commit()
-    conn.close()
-
-    print("auth user pass works")
-
-    for row in results:
-        if password == row[0]:
-            x = 1
-
-    for row in results2:
-        if password == row[0]:
+        if pass_change == False:
             x = 2
-    
+            
     return x
 
 def login_true(chatid):
-    conn = sqlite3.connect('Userbase.db')
-    cursor = conn.cursor()
 
     ph = retrieve_nric(chatid)
     
-    cursor.execute(f" UPDATE user_accounts SET login_status = true, tele_id = '{chatid}' WHERE user_ic LIKE '%{ph}';")
-        
-    conn.commit()
-    conn.close()
-
-    print("login true works")
-
+    criteria = {"useric": {"$regex": re.compile(ph, re.IGNORECASE)}}
+    up = {"$set": {"pass_change": True, "login_status": True, "tele_id": chatid}}
+    user_accounts.update_one(criteria, up)
+ 
     return
 
 def log_query(intake, query, response):
-    conn = sqlite3.connect('Userbase.db')
-    cursor = conn.cursor()
 
-    formatted_date = datetime.now().strftime("%Y%m%d")
+    formatted_date = datetime.now().strftime("%d%m%y")
+    document = {
+        "date":formatted_date,
+        "intake": intake,
+        "query" : query,
+        "response" : response
+    }
 
-    cursor.execute(f"""
-                    INSERT INTO eoc (date, intake, query, response) VALUES ( '{formatted_date}', '{intake}', '{query}', '{response}');
-                """)
-        
-    conn.commit()
-    conn.close()
+    end_of_course.insert_one(document)
     return
 
 async def login(update, context):
@@ -274,43 +248,26 @@ async def login(update, context):
 
 # to add a temp row to allow user login process in temp db
 def add_temp(chatid, nric):
-    conn = sqlite3.connect('Userbase.db')
-    cursor = conn.cursor()
-
-    formatted_date = datetime.now().strftime("%Y%m%d")
-
-    cursor.execute(f"""
-                    INSERT INTO temp (chat_id, NRIC, pass) VALUES ( '{chatid}', '{nric}', '');
-                """)
-        
-    conn.commit()
-    conn.close()
+    existing_document = temp.find_one({"tele_id": chatid})
+    if existing_document is None:
+        up = {"tele_id": chatid, "nric": nric}
+        temp.insert_one(up)
     return
 
 def retrieve_nric(chatid):
-    conn = sqlite3.connect('Userbase.db')
-    cursor = conn.cursor()
-    x = 0
-
-    cursor.execute(f"""
-    SELECT nric FROM temp WHERE chat_id IS '{chatid}'
-    """) 
-    results = cursor.fetchall()
-
-    conn.commit()
-    conn.close()
-
-    for row in results:
-        return row[0]
-
+    cursor_mongo = temp.find({"tele_id": chatid})
+    
+    for document in cursor_mongo:
+        nric = document['nric']
+        return nric
 
 async def usernric(update, context):
     chat_id = update.message.chat.id
-    text = update.message.text
+    nric = update.message.text
 
-    if auth_user_check(text) == True:
+    if auth_user_check(nric) == True:
         await update.message.reply_text("Please enter your password! If you are unsure of your password, please seek assistance from your supervisor")
-        add_temp(chat_id, text)
+        add_temp(chat_id, nric)
         return USERPASS
     
     await update.message.reply_text("You have not been registered in our system. Please seek assistance from your supervisor. To try again, please press /login")
@@ -322,14 +279,15 @@ async def userpass(update, context):
     password = update.message.text
     nric = retrieve_nric(chat_id)
 
+    login_check = auth_user_pass(nric,password)
 
-    if auth_user_pass(nric, password) == 1:
+    if login_check == 1:
         await update.message.reply_text("You have successfully logged in!")
         chatid = update.message.chat.id
         login_true(chatid)
         return ConversationHandler.END
 
-    elif auth_user_pass(nric, password) == 2:
+    elif login_check == 2:
         await update.message.reply_text("You are logging in for the first time. Please enter a new password! (Password is case sensitive)")
         login_true(chat_id)
         return UPDATEPASS
@@ -341,18 +299,13 @@ async def userpass(update, context):
 async def userupdate(update, context):
     chat_id = update.message.chat.id
     password = update.message.text
-    conn = sqlite3.connect('Userbase.db')
-    cursor = conn.cursor()
 
     ph = password
     ph2 = retrieve_nric(chat_id)
 
-    cursor.execute(f"""
-                        UPDATE user_accounts SET password = '{ph}' WHERE user_ic LIKE '%{ph2}';
-                    """)
-        
-    conn.commit()
-    conn.close()
+    criteria = {"useric": {"$regex": re.compile(ph2, re.IGNORECASE)}}
+    up = {"$set": {"password":ph}}
+    user_accounts.update_one(criteria, up)
 
     await update.message.reply_text("Your new password has been set and you have logged in! Please continue to use the bot to answer all of your questions!")
     return ConversationHandler.END
@@ -410,25 +363,19 @@ def get_message(update:Update,processed:str) -> str :
     # return assistant_response
 
 def check_user_login(chatid):
-    conn = sqlite3.connect('Userbase.db')
-    cursor = conn.cursor()
 
-    cursor.execute(f"""
-        SELECT login_status, intake FROM user_accounts WHERE tele_id = '{chatid}'
-        """) 
-    results = cursor.fetchall()
+    rec_dict = {"status": False, "intake": ""}     
+    cursor_mongo = user_accounts.find({"tele_id":chatid})
 
-    for row in results:
-        if row[0] == 1:
-            intake = row[1]
-            approved_users.update({chatid:""})
+    for document in cursor_mongo:
+        status = document['login_status']
+        intake = document['intake']
 
-            rec_dict = {"status":True, "intake": intake}
-            return rec_dict  
-        
-    rec_dict = {"status": False, "intake": ""}
-    return rec_dict          
+    if status == True:
+        approved_users.update({chatid:""})
+        rec_dict = {"status":True, "intake": intake}
 
+    return rec_dict  
 
 def handle_response(update:Update, text: str) -> str:
 
@@ -445,18 +392,6 @@ def handle_response(update:Update, text: str) -> str:
     if 'thanks' in processed:
         return "No Problem! Have a good day!"
 
-    #code to reduce number of queries per day per batallion per recruit to 1
-
-    # if current_member not in approved_users:
-    #     login_info = check_user_login(current_member) 
-
-    #     if login_info['status'] == False: #Catch for non approved users. #point of entry to AI use
-    #         return "Sorry You don't have access to this bot! Please use /login to login and gain access to this bot!"
-        
-    #     response = get_message(update, processed)
-    #     log_query(login_info["status"], processed, response)
-    #     print(login_info["status"], processed, response)
-    
 
     login_info = check_user_login(current_member) 
 
@@ -465,8 +400,8 @@ def handle_response(update:Update, text: str) -> str:
 
  
     response = get_message(update, processed)
-    log_query(login_info["status"], processed, response)
-    print(login_info["status"], processed, response)
+    log_query(login_info["intake"], processed, response)
+    print(login_info["intake"], processed, response)
 
     return response
     
@@ -533,7 +468,6 @@ if __name__ == "__main__":
     app.add_handler(CommandHandler('start',start_command))
     app.add_handler(CommandHandler('help',help_command))
     app.add_handler(CommandHandler('upcoming',upcoming_command))
-    app.add_handler(CommandHandler('cancel',cancel))
 
     #Messages ----------------------------------------------------------------------------------------------------
     app.add_handler(MessageHandler(filters.TEXT, handle_message))

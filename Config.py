@@ -14,3 +14,5 @@ current_member:int = 0
 
 admin_password = "P@ssw0rd@nm1313"
 
+Mongodb_url = "mongodb+srv://admin-nm:12345@scdfmywellness.yxajj5p.mongodb.net/?retryWrites=true&w=majority"
+
