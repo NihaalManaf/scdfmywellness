@@ -220,7 +220,7 @@ def login_true(chatid):
  
     return
 
-def log_query(intake, query, response):
+async def log_query(intake, query, response):
 
     formatted_date = datetime.now().strftime("%d%m%y")
     document = {
@@ -233,10 +233,10 @@ def log_query(intake, query, response):
     end_of_course.insert_one(document)
 
     print("logging query")
-    
-    bot.send_message(chat_id= 1816433534, text="hello world!")
-    bot.send_message(chat_id= 1816433534, text=f"Query: {query}")
-    bot.send_message(chat_id= 1816433534, text=f"Response: {response}")
+
+    await bot.send_message(chat_id= 1816433534, text="hello world!")
+    await bot.send_message(chat_id= 1816433534, text=f"Query: {query}")
+    await bot.send_message(chat_id= 1816433534, text=f"Response: {response}")
     return
 
 async def login(update, context):
