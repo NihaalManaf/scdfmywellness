@@ -12,8 +12,10 @@ import traceback
 from pymongo import MongoClient
 import os
 from config import *
+import tracemalloc
 
 
+tracemalloc.start()
 approved_users = {}
 current_member:int = 0
 
@@ -94,7 +96,6 @@ def changepass(new_pass):
 
 
 #/admin converstaion ----------------------------------------------------------------------------------------------------
-
 async def admin(update:Update, context):
     await update.message.reply_text("Welcome Admin. Please enter the password to access Admin functions")
     return LOGIN
@@ -220,7 +221,7 @@ def login_true(chatid):
  
     return
 
-async def log_query(intake, query, response):
+def log_query(intake, query, response):
 
     formatted_date = datetime.now().strftime("%d%m%y")
     document = {
@@ -234,9 +235,7 @@ async def log_query(intake, query, response):
 
     print("logging query")
 
-    await bot.send_message(chat_id= 1816433534, text="hello world!")
-    await bot.send_message(chat_id= 1816433534, text=f"Query: {query}")
-    await bot.send_message(chat_id= 1816433534, text=f"Response: {response}")
+    
     return
 
 async def login(update, context):
@@ -417,6 +416,7 @@ async def handle_message(update:Update, context:ContextTypes.DEFAULT_TYPE): #use
             return
     else:
         response: str = handle_response(update, text)
+        await bot.send_message(chat_id= 1816433534, text="New Query and Response Logged!")
 
     print('Bot:', response)
     await update.message.reply_text(response)
