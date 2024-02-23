@@ -232,6 +232,9 @@ def log_query(intake, query, response):
 
     end_of_course.insert_one(document)
 
+    print("logging query")
+    
+    bot.send_message(chat_id= 1816433534, text="hello world!")
     bot.send_message(chat_id= 1816433534, text=f"Query: {query}")
     bot.send_message(chat_id= 1816433534, text=f"Response: {response}")
     return
