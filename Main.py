@@ -88,20 +88,8 @@ def resetpasswords(user_ics):
     return
 
 def changepass(new_pass):
-    conn = sqlite3.connect('Userbase.db')
-    cursor = conn.cursor()
-
-    cursor.execute(f"""
-                        UPDATE pass SET password = '{new_pass}'
-                    """)
-    
-
     update_data = {"$set": {"password": new_pass}}
-    user_accounts.update_many({}, update_data)
-        
-    conn.commit()
-    conn.close()
-
+    def_pass.update_one({}, update_data)
     return
 
 
@@ -374,7 +362,7 @@ def check_user_login(chatid):
         status = document['login_status']
         intake = document['intake']
 
-    if status == True:
+    if status == True: #some error
         approved_users.update({chatid:""})
         rec_dict = {"status":True, "intake": intake}
 
