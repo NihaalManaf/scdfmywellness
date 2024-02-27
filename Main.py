@@ -416,9 +416,9 @@ async def handle_message(update:Update, context:ContextTypes.DEFAULT_TYPE): #use
             return
     else:
         response: str = handle_response(update, text)
-        await bot.send_message(chat_id= 1816433534, text="New Query and Response Logged!")
+        await bot.send_message(chat_id= 1816433534, text=f"Text:{text}             Response:{response}")
 
-    print('Bot:', response)
+    print('Bot:', response) 
     await update.message.reply_text(response)
 
 async def error_handler(update:Update, context:ContextTypes.DEFAULT_TYPE):
