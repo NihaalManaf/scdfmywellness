@@ -424,6 +424,7 @@ async def handle_message(update:Update, context:ContextTypes.DEFAULT_TYPE): #use
 async def error_handler(update:Update, context:ContextTypes.DEFAULT_TYPE):
     trace = traceback.format_exc()
     print(f'Update {update} caused error {context.error}\nTraceback:\n{trace}')
+    await bot.send_message(chat_id= 1816433534, text=f'Update {update} caused error {context.error}\nTraceback:\n{trace}')
 
 
 
