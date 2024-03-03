@@ -360,7 +360,8 @@ def get_message(update:Update,processed:str) -> str :
 
 def check_user_login(chatid):
 
-    rec_dict = {"status": False, "intake": ""}     
+    rec_dict = {"status": False, "intake": ""}   
+    status = False  
     cursor_mongo = user_accounts.find({"tele_id":chatid})
 
     for document in cursor_mongo:
