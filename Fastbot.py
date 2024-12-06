@@ -170,7 +170,7 @@ async def code_auth(context):
         await send_text(chat_id, "Invalid code. Please re-enter the code or press /cancel to cancel the operation.")
         return False
     await send_text(chat_id, "Code authenticated")
-    await clients.update_one({"_id": chat_id}, {"$set": {"registration_status": "registered"}})
+    clients.update_one({"_id": chat_id}, {"$set": {"registration_status": "registered"}})
     return True
 
 async def realtime_convomode(context):
