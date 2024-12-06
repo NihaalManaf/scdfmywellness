@@ -121,14 +121,16 @@ async def state_manager(context):
     conversation = context['conversation_flow']
     conversation_stage = context['conversation_stage']
     
-    if state == "genesis":
-        print(noj.noj['conversations'])
+    if state == "genesis": #special state becuase this routes to other states
         if user_input not in noj.noj['conversations']:
             await send_text(chat_id, "Please enter a valid command!")
             return {"status": "ok"}
         else:
             await update_state_client(chat_id, user_input, 0)
-    
-    await handle_state(context) #runs the handling fn and updates the state
+            context['conversation_flow'] = user_input
+            context['state'] = noj.noj['conversation_flows'][user_input][0]
+            await handle_state(context)
+    else:
+        await handle_state(context) #runs the handling fn and updates the state
  
     return {"status": "ok"}
