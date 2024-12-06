@@ -1,5 +1,7 @@
 noj = {
-    "conversations" : {
+    "conversations" : ["/start", "/register"],
+    
+    "conversation_flows" : {
         "/start" : ['genesis'],
         "/register" : ['awaiting_code', 'code_auth']
     }, 

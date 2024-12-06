@@ -140,21 +140,23 @@ async def echo(request: Request):
         
         if rec.find_one({'_id': chat_id}):
             recruit = rec.find_one({'_id': chat_id})
-            print(recruit['state'][0])
-            print(recruit['state'][1])
-            print(noj.noj['conversations'])
-            current_state = noj.noj['conversations'][recruit['state'][0]][recruit['state'][1]]
-            print(current_state)
-            info_payload = recruit['info_payload']
-            state_info = noj.noj['states'][current_state]
 
-            handling_fn = getattr(f, state_info['handling_fn']) #insert handling functions into fastbot
+            current_state = noj.noj['conversation_flows'][recruit['state'][0]][recruit['state'][1]] #current state of user
+            info_payload = recruit['info_payload'] #full info payload of user
+            state_info = noj.noj['states'][current_state] #noj module of state
+            handling_fn = getattr(f, state_info['handling_fn']) #function to handle state
+
             context = {
                 'chat_id': chat_id,
                 'user_input': user_input,
-                'info_payload': info_payload
+                'info_payload': info_payload,
+                'state': current_state,
+                'conversation_flow' : recruit['state'][0],
+                'conversation_stage' : recruit['state'][1],
+                'handling_fn': handling_fn
             }
-            await handling_fn(context) # use **context breaks down the contents of the dictionary into individual arguments
+            
+            await f.state_manager(context)
 
             if update.message:
                 if "/cancel" == update.message.text:

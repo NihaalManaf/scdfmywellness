@@ -22,6 +22,7 @@ from fastapi.responses import HTMLResponse
 from pymongo import MongoClient
 from fastapi.templating import Jinja2Templates
 import string
+import noj
 
 # Token (Define all API tokens/credentials here) ___________
 telegram_token = os.environ['telegram_token']
@@ -64,8 +65,11 @@ async def send_text_with_back(chat_id, message_text):
 async def delete_message(chat_id, message_id):
     await bot.delete_message(chat_id=chat_id, message_id=message_id)
 
-async def update_state_client(chat_id, major, minor):
-    clients.update_one({"_id": chat_id}, {"$set": {"state.major": major, "state.minor": minor}})
+async def update_state_client(chat_id, conversation, stage):
+    clients.update_one(
+        {"_id": chat_id},
+        {"$set": {"state": [conversation, stage]}}
+    )
 
 async def send_options_buttons(chat_id, text, options, options_data):
     buttons = []
@@ -87,10 +91,43 @@ async def send_image_with_caption(chat_id, image_url, caption):
     await bot.send_photo(chat_id=chat_id, photo=image_url, caption=caption, parse_mode=telegram.constants.ParseMode.HTML)
 
 
+#noj handling functions: ________
+async def handle_state(context):
+    chat_id = context['chat_id']
+    current_state = context['state'] #genesis, awaiting_code, code_auth
+    conversation = context['conversation_flow'] # /start, /register
+    conversation_stage = context['conversation_stage'] # 0, 1, 2
+    handling_fn = context['handling_fn']
+
+    if conversation_stage == len(noj.noj['conversation_flows'][conversation]) - 1:
+        await handling_fn(context)
+        await update_state_client(chat_id, "/start", 0)
+    else:
+        await handling_fn(context)
+        await update_state_client(chat_id, conversation, conversation_stage + 1)
+    return {"status": "ok"}
+
+    
 async def genesis(context):
+    chat_id = context['chat_id']
+    await send_text(chat_id, "/start message goes here")
+    return {"status": "ok"}
+
+async def state_manager(context):
     chat_id = context['chat_id']
     user_input = context['user_input']
     info_payload = context['info_payload']
-
-    await send_text(chat_id, "/start message goes here")
+    state = context['state']
+    conversation = context['conversation_flow']
+    conversation_stage = context['conversation_stage']
+    
+    if state == "genesis":
+        if user_input in noj.noj['conversations']:
+            await send_text(chat_id, "Please enter a valid command!")
+        else:
+            begin_state = noj.noj['conversation_flows'][user_input][0] #finds the first state of the conversation
+            await update_state_client(chat_id, begin_state, 0)
+    else:
+        await handle_state(context)
+ 
     return {"status": "ok"}
