@@ -103,7 +103,7 @@ async def handle_state(context):
     fn_response = await handling_fn(context)
     print(fn_response)
     print(len(noj.noj['conversation_flows'][conversation_flow]))
-    if conversation_stage == len(noj.noj['conversation_flows'][conversation_flow] - 1):
+    if conversation_stage == len(noj.noj['conversation_flows'][conversation_flow]) - 1:
         await update_state_client(chat_id, "/start", 0)
     else:
         if fn_response == True:
@@ -142,7 +142,7 @@ async def state_manager(context):
         else:
             await update_state_client(chat_id, user_input, 0)
             recruit = clients.find_one({'_id': chat_id})
-            context = await generate_context(chat_id, user_input, info_payload, recruit, f)
+            context = await generate_context(chat_id, user_input, info_payload, recruit, f) #context needs to be regenerated because of change in state and conversation
             await handle_state(context)
     else:
         await handle_state(context) #runs the handling fn and updates the state
@@ -159,7 +159,6 @@ async def genesis(context):
 async def awaiting_code(context):
     chat_id = context['chat_id']
     await send_text(chat_id, "Please enter the verification code")
-    await update_info_payload(chat_id, "awaiting_code", context['user_input'])
     return True
 
 async def code_auth(context):
