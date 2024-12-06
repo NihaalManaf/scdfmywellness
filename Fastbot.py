@@ -23,6 +23,7 @@ from pymongo import MongoClient
 from fastapi.templating import Jinja2Templates
 import string
 import noj
+import Fastbot as f
 
 # Token (Define all API tokens/credentials here) ___________
 telegram_token = os.environ['telegram_token']
@@ -111,7 +112,7 @@ async def get_handlingfn(library, state):
     handling_fn = noj.noj['states'][state]['handling_fn']
     return getattr(library, handling_fn)
 
-async def generate_context(chat_id, user_input, info_payload, recruit, library):
+async def generate_context(chat_id: int, user_input: string, info_payload: object, recruit: object, library:object):
     state = noj.noj['conversation_flows'][recruit['state'][0]][recruit['state'][1]]
     context = {
         'chat_id': chat_id, #10 digit number
@@ -120,7 +121,7 @@ async def generate_context(chat_id, user_input, info_payload, recruit, library):
         'state': state, #current state of user - genesis, awaiting_code, code_auth
         'conversation_flow' : recruit['state'][0], # /start, /register
         'conversation_stage' : recruit['state'][1], # 0, 1, 2
-        'handling_fn': get_handlingfn(library, state) #function to handle state
+        'handling_fn': await get_handlingfn(library, state) #function to handle state
     }
     return context
     
@@ -143,9 +144,8 @@ async def state_manager(context):
             return {"status": "ok"}
         else:
             await update_state_client(chat_id, user_input, 0)
-            context['conversation_flow'] = user_input
-            context['state'] = noj.noj['conversation_flows'][user_input][0]
-            print(context)
+            recruit = clients.find_one({'_id': chat_id})
+            context = await generate_context(chat_id, user_input, info_payload, recruit, f)
             await handle_state(context)
     else:
         await handle_state(context) #runs the handling fn and updates the state
