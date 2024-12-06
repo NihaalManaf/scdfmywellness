@@ -141,7 +141,9 @@ async def echo(request: Request):
         if rec.find_one({'_id': chat_id}):
             recruit = rec.find_one({'_id': chat_id})
 
-            current_state = recruit['state']
+
+            current_state = noj.noj['conversations'][recruit['state'][0]][recruit['state'][1]]
+            print(current_state)
             info_payload = recruit['info_payload']
             state_info = noj.noj['states'][current_state]
 
@@ -151,8 +153,6 @@ async def echo(request: Request):
                 'user_input': user_input,
                 'info_payload': info_payload
             }
-            print(context)
-            print(state_info['handling_fn'])
             await handling_fn(context) # use **context breaks down the contents of the dictionary into individual arguments
 
             if update.message:
@@ -166,7 +166,7 @@ async def echo(request: Request):
             new_user = {
                 "_id": chat_id,
                 "time_joined": time.time(),
-                "state": "genesis",
+                "state": ["/start", 0], #abstraction of conversation [conversation, stage in conversation]
                 "info_payload": {}
             }
             rec.insert_one(new_user)

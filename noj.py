@@ -27,4 +27,5 @@ noj = {
     }
 }
 
+# all states must be found in in a conversation. A state can be in multiple conversations but a conversation must have at least one state.
 
