@@ -101,7 +101,7 @@ async def handle_state(context):
 
     if conversation_stage == len(noj.noj['conversation_flows'][conversation]) - 1:
         await handling_fn(context)
-        await update_state_client(chat_id, "/start", 0)
+        await update_state_client(chat_id, "genesis", 0)
     else:
         await handling_fn(context)
         await update_state_client(chat_id, conversation, conversation_stage + 1)
@@ -128,6 +128,6 @@ async def state_manager(context):
             begin_state = noj.noj['conversation_flows'][user_input][0] #finds the first state of the conversation
             await update_state_client(chat_id, begin_state, 0)
     else:
-        await handle_state(context)
+        await handle_state(context) #runs the handling fn and updates the state
  
     return {"status": "ok"}

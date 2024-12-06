@@ -161,7 +161,7 @@ async def echo(request: Request):
             if update.message:
                 if "/cancel" == update.message.text:
                     await f.send_text(chat_id, "You have cancelled your current opeation. Please press /start to start again.")
-                    await f.update_state_client(chat_id, 0, 0)
+                    await f.update_state_client(chat_id, "genesis", 0)
                     await f.info_payload_reset(chat_id)
                     return {"status": "ok"}
 
@@ -169,7 +169,7 @@ async def echo(request: Request):
             new_user = {
                 "_id": chat_id,
                 "time_joined": time.time(),
-                "state": ["/start", 0], #abstraction of conversation [conversation, stage in conversation]
+                "state": ["genesis", 0], #abstraction of conversation [conversation, stage in conversation]
                 "info_payload": {}
             }
             rec.insert_one(new_user)
