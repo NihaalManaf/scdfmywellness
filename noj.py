@@ -9,7 +9,7 @@ noj = {
         "genesis" : {   
             "return msg" : "/start message goes here",
             'info_payload_update' : {},
-            'handling_fn' : 'send_text',
+            'handling_fn' : 'genesis',
         },
         "awaiting_code" : {
             "return msg" : "Please enter the verification code",
@@ -28,4 +28,3 @@ noj = {
 }
 
 
-print(noj['states']['genesis']['return msg'])
