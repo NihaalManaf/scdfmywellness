@@ -21,7 +21,6 @@ from fastapi.templating import Jinja2Templates
 import Fastbot as f
 import noj
 import string
-from dateutil.relativedelta import relativedelta
 from io import BytesIO
 import time
 import os
