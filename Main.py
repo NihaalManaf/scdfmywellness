@@ -21,10 +21,8 @@ from fastapi.templating import Jinja2Templates
 import Fastbot as f
 import noj
 import string
-from io import BytesIO
 import time
 import os
-from PIL import Image, ImageDraw, ImageFont
 from fastapi.responses import JSONResponse
 
 
