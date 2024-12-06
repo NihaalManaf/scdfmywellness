@@ -138,25 +138,26 @@ async def echo(request: Request):
             await f.send_text(chat_id, "Your message type isn't supported.")
             return {"status": "ok"}
         
-        if rec.find_one({'_id': chat_id}):
-            recruit = rec.find_one({'_id': chat_id})
-            context = await f.generate_context(chat_id, user_input, recruit['info_payload'], recruit, f)
-            print(context)
-            await f.state_manager(context)
-
-            if update.message:
-                if "/cancel" == update.message.text:
+        if update.message:
+                if "/cancel" == update.message.text.lower() or "/end" == update.message.text.lower():
                     await f.send_text(chat_id, "You have cancelled your current opeation. Please press /start to start again.")
                     await f.update_state_client(chat_id, "/start", 0)
                     await f.info_payload_reset(chat_id)
                     return {"status": "ok"}
 
+
+        if rec.find_one({'_id': chat_id}):
+            recruit = rec.find_one({'_id': chat_id})
+            context = await f.generate_context(chat_id, user_input, recruit['info_payload'], recruit, f)
+            print("Beware! This is the context before any processing or manipulation" + context) 
+            await f.state_manager(context)
         else:
             new_user = {
                 "_id": chat_id,
                 "time_joined": time.time(),
                 "state": ["/start", 0], #abstraction of conversation [conversation, stage in conversation]
-                "info_payload": {}
+                "info_payload": {},
+                "registration_status" : "unregistered"
             }
             rec.insert_one(new_user)
             await f.genesis({'chat_id':chat_id})

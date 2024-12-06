@@ -1,12 +1,13 @@
 noj = {
-    "conversations" : ["/start", "/register"],
+    "conversations" : ["/start", "/register", "/convomode"], #add routing conversation starter here
 
-    "conversation_flows" : {
+    "conversation_flows" : { #add conversation flow here by starting with the conversation starter and listing the states in the conversation
         "/start" : ['genesis'],
-        "/register" : ['awaiting_code', 'code_auth']
+        "/register" : ['awaiting_code', 'code_auth'],
+        "/convomode" : ['realtime_convomode']
     }, 
 
-    "states" : {
+    "states" : { #add states here following the format below. The handling_fn name must be the name of the function in the library and preferabbly the state name
         "genesis" : {   
             "return msg" : "/start message goes here",
             'info_payload_update' : {},
@@ -14,16 +15,19 @@ noj = {
         },
         "awaiting_code" : {
             "return msg" : "Please enter the verification code",
-            'info_payload_update' : {
-                "awaiting_code" : "user_input"
-            },
+            'info_payload_update' : {},
             'handling_fn' : 'awaiting_code',
         },
         "code_auth" : {
             "return msg" : "Code authenticated",
             'info_payload_update' : {},
             'handling_fn' : 'code_auth',
-        }
+        },
+        "realtime_convomode" : {
+            "return msg" : "null",
+            'info_payload_update' : {},
+            'handling_fn' : 'realtime_convomode',
+        },
     
     }
 }

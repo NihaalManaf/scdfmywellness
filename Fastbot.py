@@ -128,6 +128,8 @@ async def generate_context(chat_id: int, user_input: string, info_payload: objec
     return context
     
 async def state_manager(context):
+
+    #this is just some unpacking of the context
     chat_id = context['chat_id']
     user_input = context['user_input']
     info_payload = context['info_payload']
@@ -139,8 +141,8 @@ async def state_manager(context):
         if user_input not in noj.noj['conversations']:
             await send_text(chat_id, "Please enter a valid command!")
             return {"status": "ok"}
-        else:
-            await update_state_client(chat_id, user_input, 0)
+        else: #if user input is a conversation, routing occurs here
+            await update_state_client(chat_id, user_input, 0) #sets the conversation accordingly
             recruit = clients.find_one({'_id': chat_id})
             context = await generate_context(chat_id, user_input, info_payload, recruit, f) #context needs to be regenerated because of change in state and conversation
             await handle_state(context)
@@ -168,4 +170,23 @@ async def code_auth(context):
         await send_text(chat_id, "Invalid code. Please re-enter the code or press /cancel to cancel the operation.")
         return False
     await send_text(chat_id, "Code authenticated")
+    await clients.update_one({"_id": chat_id}, {"$set": {"registration_status": "registered"}})
     return True
+
+async def realtime_convomode(context):
+    chat_id = context['chat_id']
+    user_input = context['user_input']
+    recruit = context['recruit']
+    registration_status = recruit['registration_status']
+    await update_info_payload(chat_id, "convo_mode", True)
+    convo_mode = context['info_payload'].get('convo_mode', False)
+
+    if registration_status == "unregistered":
+        await send_text(chat_id, "You are not registered. Please press /register to register.")
+        return True
+    else:
+        if convo_mode == False:
+            await send_text(chat_id, "You are registered. You can now proceed with the conversation. To end this mode, press /end.")
+        await send_text(chat_id, "This is the response to your question: " + user_input)
+        return False
+
