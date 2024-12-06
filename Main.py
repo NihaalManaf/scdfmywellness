@@ -1,6 +1,4 @@
 from fastapi import FastAPI, Request, Header, Response, BackgroundTasks
-import re
-import string
 import os
 import requests
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,11 +10,9 @@ import time
 import telegram
 from telegram import constants
 from pymongo import MongoClient
-import random
 import string
 import traceback
 import json
-import asyncio
 from urllib.parse import urlparse, parse_qs, urlencode, quote
 from fastapi import FastAPI, Form, Request
 from fastapi.responses import HTMLResponse
@@ -25,11 +21,7 @@ from fastapi.templating import Jinja2Templates
 import Fastbot as f
 import noj
 import string
-from openai import OpenAI
 from dateutil.relativedelta import relativedelta
-import stripe
-import qrcode
-import boto3 
 from io import BytesIO
 import time
 import os
@@ -132,7 +124,8 @@ async def echo(request: Request):
     try:
         update_data = await request.json()
         update = telegram.Update.de_json(update_data, bot)
-        if update.message:
+
+        if update.message: # parsing input from user
             if update.message.text:
                 chat_id = update.message.chat_id
                 user_input = update.message.text
@@ -147,12 +140,14 @@ async def echo(request: Request):
         else:
             await f.send_text(chat_id, "Your message type isn't supported.")
             return {"status": "ok"}
+        
         if rec.find_one({'_id': chat_id}):
             recruit = rec.find_one({'_id': chat_id})
 
             current_state = recruit['state']
             info_payload = recruit['info_payload']
             state_info = noj.noj['states'][current_state]
+
             handling_fn = getattr(f, state_info['handling_fn']) #insert handling functions into fastbot
             context = {
                 'chat_id': chat_id,
