@@ -122,7 +122,8 @@ async def state_manager(context):
     conversation_stage = context['conversation_stage']
     
     if state == "genesis":
-        if user_input in noj.noj['conversations']:
+        print(noj.noj['conversations'])
+        if user_input not in noj.noj['conversations']:
             await send_text(chat_id, "Please enter a valid command!")
         else:
             begin_state = noj.noj['conversation_flows'][user_input][0] #finds the first state of the conversation
