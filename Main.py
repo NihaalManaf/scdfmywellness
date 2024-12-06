@@ -141,21 +141,10 @@ async def echo(request: Request):
         if rec.find_one({'_id': chat_id}):
             recruit = rec.find_one({'_id': chat_id})
 
-            current_state = noj.noj['conversation_flows'][recruit['state'][0]][recruit['state'][1]] #current state of user
-            info_payload = recruit['info_payload'] #full info payload of user
+            current_state = noj.noj['conversation_flows'][recruit['state'][0]][recruit['state'][1]] #current state of user - genesis, awaiting_code, code_auth
             state_info = noj.noj['states'][current_state] #noj module of state
 
-            handling_fn = getattr(f, state_info['handling_fn']) #function to handle state
-
-            context = {
-                'chat_id': chat_id,
-                'user_input': user_input,
-                'info_payload': info_payload,
-                'state': current_state,
-                'conversation_flow' : recruit['state'][0],
-                'conversation_stage' : recruit['state'][1],
-                'handling_fn': handling_fn
-            }
+            context = await f.generate_context(chat_id, user_input, recruit['info_payload'], recruit, f)
             
             print(context)
             await f.state_manager(context)

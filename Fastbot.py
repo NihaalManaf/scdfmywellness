@@ -107,6 +107,22 @@ async def handle_state(context):
         await update_state_client(chat_id, conversation_flow, conversation_stage + 1)
     return {"status": "ok"}
 
+async def get_handlingfn(library, state):
+    handling_fn = noj.noj['states'][state]['handling_fn']
+    return getattr(library, handling_fn)
+
+async def generate_context(chat_id, user_input, info_payload, recruit, library):
+    state = noj.noj['conversation_flows'][recruit['state'][0]][recruit['state'][1]]
+    context = {
+        'chat_id': chat_id, #10 digit number
+        'user_input': user_input,
+        'info_payload': info_payload,#full info payload of user from user db
+        'state': state, #current state of user - genesis, awaiting_code, code_auth
+        'conversation_flow' : recruit['state'][0], # /start, /register
+        'conversation_stage' : recruit['state'][1], # 0, 1, 2
+        'handling_fn': get_handlingfn(library, state) #function to handle state
+    }
+    return context
     
 async def genesis(context):
     chat_id = context['chat_id']
@@ -129,6 +145,7 @@ async def state_manager(context):
             await update_state_client(chat_id, user_input, 0)
             context['conversation_flow'] = user_input
             context['state'] = noj.noj['conversation_flows'][user_input][0]
+            print(context)
             await handle_state(context)
     else:
         await handle_state(context) #runs the handling fn and updates the state
