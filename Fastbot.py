@@ -28,17 +28,17 @@ import stripe
 
 # Token (Define all API tokens/credentials here) ___________
 telegram_token = os.environ['telegram_token']
-uri = "mongodb+srv://untamed.rv4zzne.mongodb.net/?authSource=%24external&authMechanism=MONGODB-X509&retryWrites=true&w=majority&appName=Untamed"
-stripe.api_key = "sk_test_51PShQQCE2s0moqY6ZQckhHYiLOkKjog3xofaXLW0go7QZe18U0H8OIQdw8m7Gpubi2WKxs5JIfs10JO9WMBup6bp00YkIplte6"
+uri = "mongodb+srv://scdfmywellness.yxajj5p.mongodb.net/?authSource=%24external&authMechanism=MONGODB-X509&retryWrites=true&w=majority&appName=SCDFmywellness"
 
 bot = telegram.Bot(telegram_token)
 app = FastAPI()
 mongo = MongoClient(uri,
                      tls=True,
-                     tlsCertificateKeyFile='ojas.cer') # TODO: PUT KEY HERE
-users = mongo['ICS_Navaratri']
-clients = users['users']
-ticket_type = users['ticket_type']
+                     tlsCertificateKeyFile='nm_db.pem')
+users = mongo['SCDFMyWellness_v2']
+clients = users['Users'] #recruit collection
+
+
 templates = Jinja2Templates(directory="templates")
 app.add_middleware(
     CORSMiddleware,
@@ -51,7 +51,6 @@ app.add_middleware(
 # Pre-defined function: ________
 async def update_info_payload(chat_id, key, pair):
     clients.update_one({"_id": chat_id}, {"$set": {str("info_payload."+key): pair}})
-
 
 async def info_payload_reset(chat_id):
     clients.update_one({"_id": chat_id}, {"$set": {"info_payload": {}}})
@@ -85,30 +84,16 @@ async def send_text_with_url(chat_id, text, url, url_text):
     buttons = [[InlineKeyboardButton(text=url_text, url=url)]]
     reply_markup = InlineKeyboardMarkup(inline_keyboard=buttons)
     await bot.send_message(chat_id=chat_id, text=text, reply_markup=reply_markup, parse_mode=telegram.constants.ParseMode.HTML, disable_web_page_preview=True) 
-     
 
 # Create a send image(url) with caption function
 async def send_image_with_caption(chat_id, image_url, caption):
     await bot.send_photo(chat_id=chat_id, photo=image_url, caption=caption, parse_mode=telegram.constants.ParseMode.HTML)
 
-def is_valid_nus_id(input):
-    input = input.lower()
-    
-    if input.startswith('e'):
-        return True
-    else:
-        return False
-    
 
-def is_valid_email(email):
-    # Convert email to lowercase for case-insensitive comparison
-    email = email.lower()
+async def genesis(context):
+    chat_id = context['chat_id']
+    user_input = context['user_input']
+    info_payload = context['info_payload']
     
-    # Regular expression to match a valid email pattern
-    # It checks for a typical format: something@domain.extension
-    pattern = re.compile(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
-    
-    if pattern.match(email):
-        return True
-    else:
-        return False
+    await send_text(chat_id, "/start message goes here")
+    return {"status": "ok"}
