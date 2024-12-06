@@ -199,7 +199,6 @@ async def openai_req(context):
     client = OpenAI()
 
     assistant = client.beta.assistants.retrieve(os.environ['my_assistant'])
-    print(assistant)
 
     thread = client.beta.threads.create()
 
@@ -232,4 +231,11 @@ async def openai_req(context):
             else:
                 messages = 'error'
     
-    return messages
+    # Extract the latest message from the data list
+    latest_message = messages["data"][-1]
+
+    # If you just need the text content
+    latest_text = latest_message["content"][0]["text"]["value"]
+
+
+    return latest_text
