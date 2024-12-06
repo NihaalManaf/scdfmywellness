@@ -191,7 +191,8 @@ async def realtime_convomode(context):
     else:
         if convo_mode == False:
             await send_text(chat_id, "You are registered. You can now proceed with the conversation. To end this mode, press /end.")
-        await send_text(chat_id, "This is the response to your question: " + user_input)
+        response = await openai_req(context)
+        await send_text(chat_id, response)
         return False
 
 async def openai_req(context):
