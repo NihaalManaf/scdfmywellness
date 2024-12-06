@@ -151,6 +151,8 @@ async def echo(request: Request):
                 'user_input': user_input,
                 'info_payload': info_payload
             }
+            print(context)
+            print(state_info['handling_fn'])
             await handling_fn(context) # use **context breaks down the contents of the dictionary into individual arguments
 
             if update.message:
