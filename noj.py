@@ -1,5 +1,4 @@
 noj = {
-
     "conversations" : {
         "/start" : ['genesis'],
         "/register" : ['awaiting_code', 'code_auth']

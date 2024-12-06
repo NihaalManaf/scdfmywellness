@@ -140,8 +140,9 @@ async def echo(request: Request):
         
         if rec.find_one({'_id': chat_id}):
             recruit = rec.find_one({'_id': chat_id})
-
-
+            print(recruit['state'][0])
+            print(recruit['state'][1])
+            print(noj.noj['conversations'])
             current_state = noj.noj['conversations'][recruit['state'][0]][recruit['state'][1]]
             print(current_state)
             info_payload = recruit['info_payload']
