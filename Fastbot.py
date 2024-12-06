@@ -198,44 +198,18 @@ async def realtime_convomode(context):
 async def openai_req(context):
     client = OpenAI()
 
-    assistant = client.beta.assistants.retrieve(os.environ['my_assistant'])
+    completion = client.chat.completions.create(
+    model="gpt-4o-mini",
+    messages=[
+        {"role": "system", "content": "You are a helpful assistant."},
+        {
+            "role": "user",
+            "content": "Write a haiku about recursion in programming."
+        }
+    ]
+)
 
-    thread = client.beta.threads.create()
-
-    message = client.beta.threads.messages.create(
-        thread_id=thread.id,
-        role="user",
-        content=context['user_input'],
-    )
-
-    run = client.beta.threads.runs.create_and_poll(
-        thread_id=thread.id,
-        assistant_id=assistant.id,
-        instructions=""
-    )
-
-    if run.status == 'completed': 
-        messages = client.beta.threads.messages.list(
-        thread_id=thread.id
-        )
-    else:
-        time.sleep(1)
-        if run.status == 'completed': 
-            messages = client.beta.threads.messages.list(
-            thread_id=thread.id)
-        else:
-            time.sleep(2)
-            if run.status == 'completed': 
-                messages = client.beta.threads.messages.list(
-                thread_id=thread.id)
-            else:
-                messages = 'error'
-    
-    # Extract the latest message from the data list
-    latest_message = messages["data"][-1]
-
-    # If you just need the text content
-    latest_text = latest_message["content"][0]["text"]["value"]
+    print(completion.choices[0].message)
 
 
-    return latest_text
+    return completion.choices[0].message
