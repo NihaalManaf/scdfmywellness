@@ -141,9 +141,16 @@ async def echo(request: Request):
         if rec.find_one({'_id': chat_id}):
             recruit = rec.find_one({'_id': chat_id})
 
+            print(recruit)
+            print(noj.noj['conversation_flows'])
+            print(recruit['state'][0])
+            print(recruit['state'][1])
             current_state = noj.noj['conversation_flows'][recruit['state'][0]][recruit['state'][1]] #current state of user
+            print(current_state)
             info_payload = recruit['info_payload'] #full info payload of user
+            print(info_payload)
             state_info = noj.noj['states'][current_state] #noj module of state
+
             handling_fn = getattr(f, state_info['handling_fn']) #function to handle state
 
             context = {
@@ -174,7 +181,7 @@ async def echo(request: Request):
                 "info_payload": {}
             }
             rec.insert_one(new_user)
-            await rec.send_text(chat_id, '/start message goes here')
+            await f.genesis(chat_id)
     except Exception as e:
         print(f"An error occurred: {e}")
         return {"status": "not ok"}
