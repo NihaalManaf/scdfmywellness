@@ -123,7 +123,8 @@ async def generate_context(chat_id: int, user_input: string, info_payload: objec
         'state': state, #current state of user - genesis, awaiting_code, code_auth
         'conversation_flow' : recruit['state'][0], # /start, /register
         'conversation_stage' : recruit['state'][1], # 0, 1, 2
-        'handling_fn': await get_handlingfn(library, state) #function to handle state
+        'handling_fn': await get_handlingfn(library, state), #function to handle state
+        'recruit': recruit #full user db object in case
     }
     return context
     
