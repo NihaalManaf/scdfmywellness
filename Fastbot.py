@@ -24,10 +24,13 @@ from fastapi.templating import Jinja2Templates
 import string
 import noj
 import Fastbot as f
+from openai import OpenAI
+
 
 # Token (Define all API tokens/credentials here) ___________
 telegram_token = os.environ['telegram_token']
 uri = "mongodb+srv://scdfmywellness.yxajj5p.mongodb.net/?authSource=%24external&authMechanism=MONGODB-X509&retryWrites=true&w=majority&appName=SCDFmywellness"
+OPENAI_API_KEY = os.environ['OPENAI_API_KEY']
 
 bot = telegram.Bot(telegram_token)
 app = FastAPI()
@@ -191,3 +194,41 @@ async def realtime_convomode(context):
         await send_text(chat_id, "This is the response to your question: " + user_input)
         return False
 
+async def openai_req(context):
+    client = OpenAI()
+
+    assistant = client.beta.assistants.retrieve(os.environ['my_assistant'])
+    print(assistant)
+
+    thread = client.beta.threads.create()
+
+    message = client.beta.threads.messages.create(
+        thread_id=thread.id,
+        role="user",
+        content=context['user_input'],
+    )
+
+    run = client.beta.threads.runs.create_and_poll(
+        thread_id=thread.id,
+        assistant_id=assistant.id,
+        instructions=""
+    )
+
+    if run.status == 'completed': 
+        messages = client.beta.threads.messages.list(
+        thread_id=thread.id
+        )
+    else:
+        time.sleep(1)
+        if run.status == 'completed': 
+            messages = client.beta.threads.messages.list(
+            thread_id=thread.id)
+        else:
+            time.sleep(2)
+            if run.status == 'completed': 
+                messages = client.beta.threads.messages.list(
+                thread_id=thread.id)
+            else:
+                messages = 'error'
+    
+    return messages
