@@ -16,15 +16,12 @@ import random
 import string
 import traceback
 import json
-import asyncio
 from urllib.parse import urlparse, parse_qs, urlencode, quote
 from fastapi import FastAPI, Form, Request
 from fastapi.responses import HTMLResponse
 from pymongo import MongoClient
 from fastapi.templating import Jinja2Templates
-import Fastbot
 import string
-import stripe
 
 # Token (Define all API tokens/credentials here) ___________
 telegram_token = os.environ['telegram_token']
@@ -94,6 +91,6 @@ async def genesis(context):
     chat_id = context['chat_id']
     user_input = context['user_input']
     info_payload = context['info_payload']
-    
+
     await send_text(chat_id, "/start message goes here")
     return {"status": "ok"}
