@@ -101,7 +101,7 @@ async def handle_state(context):
 
     if conversation_stage == len(noj.noj['conversation_flows'][conversation]) - 1:
         await handling_fn(context)
-        await update_state_client(chat_id, "genesis", 0)
+        await update_state_client(chat_id, "/start", 0)
     else:
         await handling_fn(context)
         await update_state_client(chat_id, conversation, conversation_stage + 1)

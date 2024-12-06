@@ -141,14 +141,8 @@ async def echo(request: Request):
         if rec.find_one({'_id': chat_id}):
             recruit = rec.find_one({'_id': chat_id})
 
-            print(recruit)
-            print(noj.noj['conversation_flows'])
-            print(recruit['state'][0])
-            print(recruit['state'][1])
             current_state = noj.noj['conversation_flows'][recruit['state'][0]][recruit['state'][1]] #current state of user
-            print(current_state)
             info_payload = recruit['info_payload'] #full info payload of user
-            print(info_payload)
             state_info = noj.noj['states'][current_state] #noj module of state
 
             handling_fn = getattr(f, state_info['handling_fn']) #function to handle state
@@ -169,7 +163,7 @@ async def echo(request: Request):
             if update.message:
                 if "/cancel" == update.message.text:
                     await f.send_text(chat_id, "You have cancelled your current opeation. Please press /start to start again.")
-                    await f.update_state_client(chat_id, "genesis", 0)
+                    await f.update_state_client(chat_id, "/start", 0)
                     await f.info_payload_reset(chat_id)
                     return {"status": "ok"}
 
@@ -177,7 +171,7 @@ async def echo(request: Request):
             new_user = {
                 "_id": chat_id,
                 "time_joined": time.time(),
-                "state": ["genesis", 0], #abstraction of conversation [conversation, stage in conversation]
+                "state": ["/start", 0], #abstraction of conversation [conversation, stage in conversation]
                 "info_payload": {}
             }
             rec.insert_one(new_user)
