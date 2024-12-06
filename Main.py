@@ -149,7 +149,8 @@ async def echo(request: Request):
         if rec.find_one({'_id': chat_id}):
             recruit = rec.find_one({'_id': chat_id})
             context = await f.generate_context(chat_id, user_input, recruit['info_payload'], recruit, f)
-            print("Beware! This is the context before any processing or manipulation" + context) 
+            print("Beware! This is the context before any processing or manipulation")
+            print(context)
             await f.state_manager(context)
         else:
             new_user = {
