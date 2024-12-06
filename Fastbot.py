@@ -95,16 +95,16 @@ async def send_image_with_caption(chat_id, image_url, caption):
 async def handle_state(context):
     chat_id = context['chat_id']
     current_state = context['state'] #genesis, awaiting_code, code_auth
-    conversation = context['conversation_flow'] # /start, /register
+    conversation_flow = context['conversation_flow'] # /start, /register
     conversation_stage = context['conversation_stage'] # 0, 1, 2
     handling_fn = context['handling_fn']
 
-    if conversation_stage == len(noj.noj['conversation_flows'][conversation]) - 1:
+    if conversation_stage == len(noj.noj['conversation_flows'][conversation_flow]) - 1:
         await handling_fn(context)
         await update_state_client(chat_id, "/start", 0)
     else:
         await handling_fn(context)
-        await update_state_client(chat_id, conversation, conversation_stage + 1)
+        await update_state_client(chat_id, conversation_flow, conversation_stage + 1)
     return {"status": "ok"}
 
     
@@ -125,10 +125,10 @@ async def state_manager(context):
         print(noj.noj['conversations'])
         if user_input not in noj.noj['conversations']:
             await send_text(chat_id, "Please enter a valid command!")
+            return {"status": "ok"}
         else:
-            begin_state = noj.noj['conversation_flows'][user_input][0] #finds the first state of the conversation
-            await update_state_client(chat_id, begin_state, 0)
-    else:
-        await handle_state(context) #runs the handling fn and updates the state
+            await update_state_client(chat_id, user_input, 0)
+    
+    await handle_state(context) #runs the handling fn and updates the state
  
     return {"status": "ok"}
