@@ -101,8 +101,9 @@ async def handle_state(context):
     handling_fn = context['handling_fn']
 
     fn_response = await handling_fn(context)
-
-    if conversation_stage == len(noj.noj['conversation_flows'][conversation_flow]) - 1:
+    print(fn_response)
+    print(len(noj.noj['conversation_flows'][conversation_flow]))
+    if conversation_stage == len(noj.noj['conversation_flows'][conversation_flow]):
         await update_state_client(chat_id, "/start", 0)
     else:
         if fn_response == True:
