@@ -92,7 +92,7 @@ async def send_image_with_caption(chat_id, image_url, caption):
     await bot.send_photo(chat_id=chat_id, photo=image_url, caption=caption, parse_mode=telegram.constants.ParseMode.HTML)
 
 
-#noj handling functions: ________
+#noj abstractions: ________
 async def handle_state(context):
     chat_id = context['chat_id']
     current_state = context['state'] #genesis, awaiting_code, code_auth
@@ -100,12 +100,13 @@ async def handle_state(context):
     conversation_stage = context['conversation_stage'] # 0, 1, 2
     handling_fn = context['handling_fn']
 
+    fn_response = await handling_fn(context)
+
     if conversation_stage == len(noj.noj['conversation_flows'][conversation_flow]) - 1:
-        await handling_fn(context)
         await update_state_client(chat_id, "/start", 0)
     else:
-        await handling_fn(context)
-        await update_state_client(chat_id, conversation_flow, conversation_stage + 1)
+        if fn_response == True:
+            await update_state_client(chat_id, conversation_flow, conversation_stage + 1)
     return {"status": "ok"}
 
 async def get_handlingfn(library, state):
@@ -125,11 +126,6 @@ async def generate_context(chat_id: int, user_input: string, info_payload: objec
     }
     return context
     
-async def genesis(context):
-    chat_id = context['chat_id']
-    await send_text(chat_id, "/start message goes here")
-    return {"status": "ok"}
-
 async def state_manager(context):
     chat_id = context['chat_id']
     user_input = context['user_input']
@@ -151,3 +147,25 @@ async def state_manager(context):
         await handle_state(context) #runs the handling fn and updates the state
  
     return {"status": "ok"}
+
+
+#noj handling functions: ________
+async def genesis(context):
+    chat_id = context['chat_id']
+    await send_text(chat_id, "/start message goes here")
+    return True
+
+async def awaiting_code(context):
+    chat_id = context['chat_id']
+    await send_text(chat_id, "Please enter the verification code")
+    await update_info_payload(chat_id, "awaiting_code", context['user_input'])
+    return True
+
+async def code_auth(context):
+    chat_id = context['chat_id']
+    password = "1234"
+    if context['user_input'] != password:
+        await send_text(chat_id, "Invalid code. Please re-enter the code or press /cancel to cancel the operation.")
+        return False
+    await send_text(chat_id, "Code authenticated")
+    return True

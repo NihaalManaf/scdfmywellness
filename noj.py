@@ -1,6 +1,6 @@
 noj = {
     "conversations" : ["/start", "/register"],
-    
+
     "conversation_flows" : {
         "/start" : ['genesis'],
         "/register" : ['awaiting_code', 'code_auth']
@@ -17,12 +17,12 @@ noj = {
             'info_payload_update' : {
                 "awaiting_code" : "user_input"
             },
-            'handling_fn' : 'send_text',
+            'handling_fn' : 'awaiting_code',
         },
         "code_auth" : {
             "return msg" : "Code authenticated",
             'info_payload_update' : {},
-            'handling_fn' : 'send_text',
+            'handling_fn' : 'code_auth',
         }
     
     }
