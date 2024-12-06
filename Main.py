@@ -156,6 +156,7 @@ async def echo(request: Request):
                 'handling_fn': handling_fn
             }
             
+            print(context)
             await f.state_manager(context)
 
             if update.message:
