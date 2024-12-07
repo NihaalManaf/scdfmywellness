@@ -213,6 +213,5 @@ async def openai_req(context):
     print("openai response message")
     message = completion.choices[0].message
     print(message)
-    message_content = message['content']
-    
+    message_content = message.content
     return message_content
