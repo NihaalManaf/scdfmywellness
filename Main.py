@@ -81,13 +81,15 @@ async def echo(request: Request):
                     await f.info_payload_reset(chat_id)
                     return {"status": "ok"}
 
-
+        print("State management begins here")
         if rec.find_one({'_id': chat_id}):
             recruit = rec.find_one({'_id': chat_id})
             context = await f.generate_context(chat_id, user_input, recruit['info_payload'], recruit, f)
             print("Beware! This is the context before any processing or manipulation")
             print(context)
             await f.state_manager(context)
+            print("State management ends here")
+
         else:
             new_user = {
                 "_id": chat_id,

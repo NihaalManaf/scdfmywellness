@@ -197,7 +197,7 @@ async def realtime_convomode(context):
 
 async def openai_req(context):
     client = OpenAI()
-
+    print("Openai requested")
     completion = client.chat.completions.create(
     model="gpt-4o-mini",
     messages=[
@@ -207,7 +207,10 @@ async def openai_req(context):
             "content": "Write a haiku about recursion in programming."
         }
     ]
-)
-
+)   
+    print("openai response")
+    print(completion)
+    print("openai response message")
     message = completion.choices[0].message
+    print(message)
     return message
