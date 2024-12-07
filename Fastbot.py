@@ -209,7 +209,7 @@ async def openai_req(context):
     ]
 )
 
-    print(completion.choices[0].message)
+    message = completion.choices[0].message
 
 
     return completion.choices[0].message
