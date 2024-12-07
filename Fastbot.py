@@ -210,6 +210,4 @@ async def openai_req(context):
 )
 
     message = completion.choices[0].message
-
-
-    return completion.choices[0].message
+    return message
