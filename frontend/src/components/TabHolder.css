@@ -17,9 +17,12 @@
     flex-direction: row; /* Change this to row to stack tabs horizontally */
     justify-content: flex-start;
     align-items: center;
-    padding: 10px;
-
-    border-bottom: 2px solid #ddd;
+    padding-top: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid black;
+    width: 100%; /* Add this line to make the tabs container span from left to right */
 }
 
 .tab {
@@ -42,4 +45,31 @@
     border-bottom: 2px solid #007bff;
     color: #007bff;
     font-weight: bold;
+}
+
+.tab-content-area {
+    position: absolute;
+    top: 148px; /* Adjust this value as needed to position below the tabs */
+    left: 0;
+    width: 100%;
+    height: calc(100% - 150px); /* Adjust this value to subtract the height of the title and tabs */
+    padding: 20px;
+    background-color: #fff;
+
+    border-radius: 0 0 5px 5px;
+    box-sizing: border-box;
+}
+
+.rm-top {
+    height: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+.rm-bottom{
+    height: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
 }

@@ -12,9 +12,9 @@ function App() {
       <div className='left-half-box'>
         <TabHolder />
       </div>
-      {/* <div className=''>
+      <div className='footer'>
         <h1>Footer goes here</h1>
-      </div> */}
+      </div>
     </div>
   );
 }

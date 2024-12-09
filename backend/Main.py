@@ -23,6 +23,8 @@ import backend.noj as noj
 import string
 import os
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
+import random
 
 
 
@@ -37,18 +39,25 @@ mongo = MongoClient(uri,
                      tls=True,
                      tlsCertificateKeyFile='backend/nm_db.pem')
 users = mongo['SCDFMyWellness_v2']
-rec = users['Users'] #recruit collection
+rec = users['Users'] #recruit collection\
+token = users['Token'] #token collection
 
 
 
-templates = Jinja2Templates(directory="templates")
+
+origins = [
+    'http://localhost:5173/'
+]
+
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 
 @app.post("/telegram")
@@ -108,11 +117,17 @@ async def echo(request: Request):
     return {"status": "ok"}
 
 
+class registerOTP(BaseModel):
+    OTP: int
 
-# Create a payment confirmation page 
-@app.get("/payment_confirmation")
-async def payment_confirmation(request: Request):
-    return templates.TemplateResponse("payment_confirmation.html", {"request": request})
-
-
-
+@app.post("/RegistrationModeOn", response_model=registerOTP)
+async def registration_mode_on():
+    otp = random.randint(1000, 9999)
+    token.update_one({'_id': 1}, {'$set': {'mode': True, 'value': otp}})
+    return registerOTP(OTP=otp)
+    
+@app.post("/RegistrationModeOff")
+async def registration_mode_off():
+    token.update_one({'_id': 1}, {'$set': {'mode': False}})
+    return {"status": "ok"}
+    

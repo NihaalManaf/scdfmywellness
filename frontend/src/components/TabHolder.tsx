@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import './TabHolder.css';
 import RegisterRecruits from './RegisterRecruits';
-import EOCReport from './EOCReport';
-import EocReport from './EOCReport';
+import EocReport from './EocReport';
+import TextBlast from './TextBlast';
 
 function TabHolder() {
     const [activeTab, setActiveTab] = useState('Tab1');
@@ -14,7 +14,7 @@ function TabHolder() {
             case 'Tab2':
                 return <EocReport />;
             case 'Tab3':
-                return <div>Content for Tab 3</div>;
+                return <TextBlast />;
             default:
                 return null;
         }
