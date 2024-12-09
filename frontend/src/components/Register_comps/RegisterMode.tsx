@@ -1,11 +1,23 @@
 import './RegisterMode.css';
 import { useState } from 'react';
+import api from '../../api';
 
 function RegisterMode() {
     const [buttonClass, setButtonClass] = useState('button-red');
     const [buttonText, setButtonText] = useState('Off');
 
-    const handleButtonClick = () => {
+    const handleButtonClick = async () => {
+        
+        if (buttonText === 'Off') {
+            try {
+                const response = await api.post('/RegistrationModeOn');
+                const otp = response.data.otp;
+                console.log('OTP:', otp);
+            } catch (error) {
+                console.error('Error activating registration mode:', error);
+            }
+        }
+
         setButtonClass(buttonClass === 'button-red' ? 'button-green' : 'button-red');
         setButtonText(buttonText === 'Off' ? 'Active' : 'Off');
     };
