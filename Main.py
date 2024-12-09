@@ -93,8 +93,8 @@ async def echo(request: Request):
             # Insert a user that should be deleted after 3 months
             new_user = {
                 "_id": chat_id,
-                "time_joined": datetime.now(datetime.timezone.utc)(),
-                "expiresAt": datetime.now(datetime.timezone.utc)() + timedelta(seconds=20),
+                "time_joined": datetime.now(timezone.utc),
+                "expiresAt": datetime.now(timezone.utc) + timedelta(seconds=20),
                 "state": ["/start", 0],
                 "info_payload": {},
                 "registration_status": "unregistered"
