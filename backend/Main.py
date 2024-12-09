@@ -160,4 +160,4 @@ async def text_blast(message: textblast):
 
     tasks = [send_message(i['_id'], message.message) for i in object]
     await asyncio.gather(*tasks)
-    return {"status": "ok"}
+    return message

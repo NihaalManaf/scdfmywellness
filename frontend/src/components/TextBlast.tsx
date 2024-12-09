@@ -6,7 +6,8 @@ function TextBlast() {
 
   const [message, setMessage] = useState("");
 
-  const sendblast = async () => {
+  const sendblast = async (e: React.FormEvent) => {
+    e.preventDefault();
     alert("Message Will Take 5-10 Minutes to Send to All Recruits! Please Do Not Press Submit Multiple Times!");
     console.log(message);
     try {
@@ -18,7 +19,7 @@ function TextBlast() {
   }
 }
 
-  const handleInputChange = (e: any) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMessage(e.target.value);
   }
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import './TabHolder.css';
 import RegisterRecruits from './RegisterRecruits';
 import EocReport from './EocReport';
