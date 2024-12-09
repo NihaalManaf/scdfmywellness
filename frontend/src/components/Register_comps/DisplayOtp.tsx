@@ -1,11 +1,15 @@
 import './RegisterMode.css'
-import React, { useState } from 'react';
+import { useState } from 'react';
 
-function DisplayOtp() {
-  const [otp, setOpt] = useState('Click Active to generate OTP');
+interface Props {
+  otp: number;
+}
+
+function DisplayOtp(props: Props) {
+
   return (
     <div className='the-box'>
-      <h1>{otp}</h1>
+      <h1>{props.otp}</h1>
     </div>
   )
 }

@@ -2,9 +2,20 @@ import './RegisterMode.css';
 import { useState } from 'react';
 import api from '../../api';
 
-function RegisterMode() {
-    const [buttonClass, setButtonClass] = useState('button-red');
-    const [buttonText, setButtonText] = useState('Off');
+
+interface RegisterModeProps {
+    onOTPChange: (otp: number) => void;
+    previousMode: boolean;
+}
+
+function RegisterMode({ previousMode ,onOTPChange }: RegisterModeProps) {
+    const bt = previousMode ? 'Active' : 'Off';
+    const bc = previousMode ? 'button-green' : 'button-red';
+
+
+    const [buttonClass, setButtonClass] = useState(bc);
+    const [buttonText, setButtonText] = useState(bt);
+
 
     const handleButtonClick = async () => {
         
@@ -13,6 +24,8 @@ function RegisterMode() {
                 const response = await api.post('/RegistrationModeOn');
                 const otp = response.data.OTP;
                 console.log('OTP:', otp);
+                onOTPChange(otp);
+                
             } catch (error) {
                 console.error('Error activating registration mode:', error);
             }

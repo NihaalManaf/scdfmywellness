@@ -130,4 +130,13 @@ async def registration_mode_on():
 async def registration_mode_off():
     token.update_one({'_id': 1}, {'$set': {'mode': False}})
     return {"status": "ok"}
+
+class registrationstatus(BaseModel):
+    OTP: int
+    mode: bool
+
+@app.post("/RegistrationModeStatus", response_model=registrationstatus)
+async def registration_mode_status():
+    object = token.find_one({'_id': 1})
+    return registrationstatus(OTP=object['value'], mode=object['mode'])
     
