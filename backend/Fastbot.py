@@ -137,7 +137,7 @@ bot = telegram.Bot(telegram_token)
 app = FastAPI()
 mongo = MongoClient(uri,
                      tls=True,
-                     tlsCertificateKeyFile='nm_db.pem')
+                     tlsCertificateKeyFile='backend/nm_db.pem')
 users = mongo['SCDFMyWellness_v2']
 clients = users['Users'] #recruit collection
 
