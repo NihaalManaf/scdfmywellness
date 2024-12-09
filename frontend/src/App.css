@@ -8,7 +8,7 @@
   width: calc(50% - 20px); /* Adjusted to account for left and right margins */
   height: calc(100% - 100px); /* Adjusted to account for top, bottom margins and footer height */
   padding: 20px;
-  background-color: #82b2fa; /* Temporary background color */
+  background: linear-gradient(to bottom right, #a1bee9, #8150da); /* Gradient background */
   border: 1px solid #ccc; /* Temporary border */
   box-sizing: border-box;
   border-radius: 10px;

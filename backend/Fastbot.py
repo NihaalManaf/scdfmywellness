@@ -272,7 +272,7 @@ async def code_auth(context):
     chat_id = context['chat_id']
     token_details = token.find_one({'_id': 1})
     password = token_details['value']
-    mode = context['mode']
+    mode = token_details['mode']
     if context['user_input'] != password or mode == False:
         await send_text(chat_id, "Invalid code. Please re-enter the code or press /cancel to cancel the operation.")
         return False
