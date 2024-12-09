@@ -49,7 +49,7 @@ token = users['Token'] #token collection
 
 origins = [
     'https://scdfmywellness.vercel.app',
-    'http://localhost:5173/'
+    'http://localhost:5173'
 ]
 
 app.add_middleware(
