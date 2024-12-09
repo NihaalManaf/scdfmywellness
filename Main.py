@@ -6,7 +6,7 @@ from telegram import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardButton, 
 from datetime import datetime, timedelta
 from fastapi.responses import HTMLResponse
 from typing import Dict, List
-import time
+from datetime import datetime, timedelta, timezone
 import telegram
 from telegram import constants
 from pymongo import MongoClient
@@ -21,7 +21,6 @@ from fastapi.templating import Jinja2Templates
 import Fastbot as f
 import noj
 import string
-import time
 import os
 from fastapi.responses import JSONResponse
 
@@ -91,14 +90,19 @@ async def echo(request: Request):
             print("State management ends here")
 
         else:
+            # Insert a user that should be deleted after 3 months
             new_user = {
                 "_id": chat_id,
-                "time_joined": time.time(),
-                "state": ["/start", 0], #abstraction of conversation [conversation, stage in conversation]
+                "time_joined": datetime.now(datetime.timezone.utc)(),
+                "expiresAt": datetime.now(datetime.timezone.utc)() + timedelta(seconds=20),
+                "state": ["/start", 0],
                 "info_payload": {},
-                "registration_status" : "unregistered"
+                "registration_status": "unregistered"
             }
             rec.insert_one(new_user)
+
+            rec.create_index("expiresAt", expireAfterSeconds=0)
+
             await f.genesis({'chat_id':chat_id})
     except Exception as e:
         print(f"An error occurred with incoming object: {e}")
