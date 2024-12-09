@@ -8,10 +8,9 @@ from telegram import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardButton, 
 from datetime import datetime, timedelta
 from fastapi.responses import HTMLResponse
 from typing import Dict, List
-import time
 import telegram
 from telegram import constants
-from pymongo import MongoClient
+from pymongo import MongoClients
 import random
 import string
 import traceback
@@ -22,8 +21,8 @@ from fastapi.responses import HTMLResponse
 from pymongo import MongoClient
 from fastapi.templating import Jinja2Templates
 import string
-import noj
-import Fastbot as f
+import backend.noj as noj
+import backend.Fastbot as f
 from openai import OpenAI
 
 

@@ -18,8 +18,8 @@ from fastapi import FastAPI, Form, Request
 from fastapi.responses import HTMLResponse
 from pymongo import MongoClient
 from fastapi.templating import Jinja2Templates
-import Fastbot as f
-import noj
+import backend.Fastbot as f
+import backend.noj as noj
 import string
 import os
 from fastapi.responses import JSONResponse
