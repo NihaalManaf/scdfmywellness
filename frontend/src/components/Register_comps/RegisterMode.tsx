@@ -11,7 +11,7 @@ function RegisterMode() {
         if (buttonText === 'Off') {
             try {
                 const response = await api.post('/RegistrationModeOn');
-                const otp = response.data.otp;
+                const otp = response.data.OTP;
                 console.log('OTP:', otp);
             } catch (error) {
                 console.error('Error activating registration mode:', error);
