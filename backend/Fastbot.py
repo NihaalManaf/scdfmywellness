@@ -140,7 +140,7 @@ mongo = MongoClient(uri,
                      tlsCertificateKeyFile='backend/nm_db.pem')
 users = mongo['SCDFMyWellness_v2']
 clients = users['Users'] #recruit collection
-
+token = users['Token'] #token collection
 
 templates = Jinja2Templates(directory="templates")
 app.add_middleware(
@@ -270,8 +270,10 @@ async def awaiting_code(context):
 
 async def code_auth(context):
     chat_id = context['chat_id']
-    password = "1234"
-    if context['user_input'] != password:
+    token_details = token.find_one({'_id': 1})
+    password = token_details['value']
+    mode = context['mode']
+    if context['user_input'] != password or mode == False:
         await send_text(chat_id, "Invalid code. Please re-enter the code or press /cancel to cancel the operation.")
         return False
     await send_text(chat_id, "Code authenticated")
