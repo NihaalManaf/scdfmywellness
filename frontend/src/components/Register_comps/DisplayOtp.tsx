@@ -9,7 +9,7 @@ function DisplayOtp(props: Props) {
 
   return (
     <div className='the-box'>
-      <h1>{props.otp}</h1>
+      <h1>OTP: {props.otp}</h1>
     </div>
   )
 }

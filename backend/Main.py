@@ -25,6 +25,8 @@ import os
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 import random
+import asyncio
+from asyncio import Semaphore
 
 
 
@@ -139,4 +141,23 @@ class registrationstatus(BaseModel):
 async def registration_mode_status():
     object = token.find_one({'_id': 1})
     return registrationstatus(OTP=object['value'], mode=object['mode'])
-    
+
+class textblast(BaseModel):
+    message: str
+
+@app.post("/TextBlast", response_model=textblast)
+async def text_blast(message: textblast):
+    object = rec.find()
+    semaphore = Semaphore(30)
+    print(message.message)
+
+    async def send_message(chat_id, message):
+        async with semaphore:
+            try:
+                await f.send_text(chat_id, message)
+            except Exception as e:
+                print(f"Failed to send message to {chat_id}: {e}")
+
+    tasks = [send_message(i['_id'], message.message) for i in object]
+    await asyncio.gather(*tasks)
+    return {"status": "ok"}

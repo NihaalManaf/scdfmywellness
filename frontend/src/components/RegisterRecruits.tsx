@@ -1,27 +1,31 @@
 import RegisterMode from "./Register_comps/RegisterMode"
 import DisplayOtp from "./Register_comps/DisplayOtp"
 import './TabHolder.css'
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import api from '../api';
+
 
 function RegisterRecruits() {
 
     const [previousmode, setPreviousMode] = useState(false); // State to hold previous mode
 
-    const fetchdata = async () => {
-        try {
-            const response = await api.post('/RegistrationModeStatus');
-            const value = response.data.OTP;
-            const mode = response.data.mode;
-            console.log('OTP:', value);
-            console.log('Mode:', mode);
-            setPreviousMode(mode);
-        } catch (error) {
-            console.error('Error fetching OTP:', error);
-        }
-    };
+    useEffect(() => {
+        const fetchdata = async () => {
+            try {
+                const response = await api.post('/RegistrationModeStatus');
+                const value = response.data.OTP;
+                const mode = response.data.mode;
+                console.log('OTP:', value);
+                console.log('Mode:', mode);
+                setPreviousMode(mode);
+                setOTP(value);
+            } catch (error) {
+                console.error('Error fetching OTP:', error);
+            }
+        };
 
-    fetchdata();
+        fetchdata();
+    }, []);
 
     const [OTP, setOTP] = useState(0); // State to hold OTP
 
