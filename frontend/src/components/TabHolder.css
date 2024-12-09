@@ -33,6 +33,7 @@
     border-radius: 5px 5px 0 0;
     cursor: pointer;
     transition: background-color 0.3s, border-color 0.3s;
+    font-weight: bold;
 }
 
 .tab:hover {
