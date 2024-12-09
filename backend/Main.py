@@ -120,7 +120,7 @@ async def echo(request: Request):
 class registerOTP(BaseModel):
     OTP: int
 
-@app.get("/RegistrationModeOn", response_model=registerOTP)
+@app.post("/RegistrationModeOn", response_model=registerOTP)
 async def registration_mode_on():
     otp = random.randint(1000, 9999)
     token.update_one({'_id': 1}, {'$set': {'mode': True, 'value': otp}})
