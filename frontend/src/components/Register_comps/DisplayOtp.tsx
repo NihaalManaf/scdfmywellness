@@ -1,5 +1,5 @@
 import './RegisterMode.css'
-import { useState } from 'react';
+
 
 interface Props {
   otp: number;
