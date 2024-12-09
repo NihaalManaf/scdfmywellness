@@ -10,7 +10,6 @@ from fastapi.responses import HTMLResponse
 from typing import Dict, List
 import telegram
 from telegram import constants
-from pymongo import MongoClients
 import random
 import string
 import traceback
