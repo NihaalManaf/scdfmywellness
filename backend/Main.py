@@ -147,7 +147,6 @@ class textblast(BaseModel):
 
 @app.post("/TextBlast", response_model=textblast)
 async def text_blast(message: textblast):
-    object = rec.find()
     semaphore = Semaphore(30)
     print(message.message)
 
@@ -158,6 +157,7 @@ async def text_blast(message: textblast):
             except Exception as e:
                 print(f"Failed to send message to {chat_id}: {e}")
 
-    tasks = [send_message(i['_id'], message.message) for i in object]
+    registered_users = rec.find({'registration_status': 'registered'})
+    tasks = [send_message(user['_id'], message.message) for user in registered_users]
     await asyncio.gather(*tasks)
     return message
