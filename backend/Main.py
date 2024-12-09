@@ -48,7 +48,7 @@ token = users['Token'] #token collection
 
 
 origins = [
-    'https://scdfmywellness.vercel.app/'
+    'https://scdfmywellness.vercel.app'
 ]
 
 
