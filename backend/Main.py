@@ -101,8 +101,6 @@ async def echo(request: Request):
             }
             rec.insert_one(new_user)
 
-            rec.create_index("expiresAt", expireAfterSeconds=0)
-
             await f.genesis({'chat_id':chat_id})
     except Exception as e:
         print(f"An error occurred with incoming object: {e}")
