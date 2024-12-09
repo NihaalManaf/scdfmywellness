@@ -54,7 +54,6 @@
     width: 100%;
     height: calc(100% - 150px); /* Adjust this value to subtract the height of the title and tabs */
     padding: 20px;
-    background-color: #fff;
 
     border-radius: 0 0 5px 5px;
     box-sizing: border-box;
