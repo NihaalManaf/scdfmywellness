@@ -94,7 +94,7 @@ async def echo(request: Request):
             new_user = {
                 "_id": chat_id,
                 "time_joined": datetime.now(timezone.utc),
-                "expiresAt": datetime.now(timezone.utc) + timedelta(seconds=20),
+                "expiresAt": datetime.now(timezone.utc) + timedelta(days=90),
                 "state": ["/start", 0],
                 "info_payload": {},
                 "registration_status": "unregistered"
