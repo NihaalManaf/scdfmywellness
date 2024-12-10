@@ -176,9 +176,6 @@ class eocoutput(BaseModel):
 
 @app.post("/generateEOC", response_model=eocoutput)
 async def generate_eoc(eoc: eocinput):
-    print(eoc.startDate)
-    print(eoc.endDate)
-    print(type(eoc.startDate))
 
     total_users = rec.count_documents({
         'time_joined': {
@@ -186,7 +183,13 @@ async def generate_eoc(eoc: eocinput):
             '$lte': datetime.strptime(eoc.endDate, "%Y-%m-%d").replace(tzinfo=timezone.utc)
         }
     })
-    total_users_reg = rec.count_documents({'registration_status': 'registered'})
+    total_users_reg = rec.count_documents({
+        'registration_status': 'registered',
+        'time_joined': {
+            '$gte': datetime.strptime(eoc.startDate, "%Y-%m-%d").replace(tzinfo=timezone.utc),
+            '$lte': datetime.strptime(eoc.endDate, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+        }
+    })
 
     total_qns = Responses.count_documents({
         'time_of_query': {
@@ -201,10 +204,5 @@ async def generate_eoc(eoc: eocinput):
             '$lte': datetime.strptime(eoc.endDate, "%Y-%m-%d").replace(tzinfo=timezone.utc)
         }
     })
-
-    print(total_users)
-    print(total_users_reg)
-    print(total_qns)
-    print(total_broadcasts)
 
     return eocoutput(total_users=total_users, total_users_reg=total_users_reg, total_qns=total_qns, total_broadcasts=total_broadcasts)
