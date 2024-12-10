@@ -179,12 +179,15 @@ async def generate_eoc(eoc: eocinput):
     print(eoc.startDate)
     print(eoc.endDate)
     print(type(eoc.startDate))
+
     users = rec.find({
         'time_joined': {
             '$gte': datetime.strptime(eoc.startDate, "%Y-%m-%d").replace(tzinfo=timezone.utc),
             '$lte': datetime.strptime(eoc.endDate, "%Y-%m-%d").replace(tzinfo=timezone.utc)
         }
     })
+    print(users)
+    print(len(users))
     total_users = users.count()
     total_users_reg = rec.find({'registration_status': 'registered'}).count()
 

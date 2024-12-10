@@ -17,8 +17,8 @@ function EocReport() {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     async function fetchEOCdData(startDate: string, endDate: string) {
-      const response = await api.post('/generateEOC', {startDate:{startDate}, endDate:{endDate}} ); 
-      console.log(response) //use state fns here to set values
+      const response = await api.post('/generateEOC', { startDate, endDate }); 
+      console.log(response); //use state fns here to set values
     }
 
     // Functions to open and close modal
