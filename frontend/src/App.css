@@ -14,18 +14,22 @@
   border-radius: 10px;
 }
 
-.footer {
+.footers {
+  display: flex;
+  justify-content: center;
+  align-items: left;
   position: fixed;
-  bottom: 0; /* Removed gap between footer and bottom of page */
+  bottom: 0; /* Stick to the bottom of the page */
   left: 0; /* Full width from the left edge */
   width: 100%; /* Full width of the page */
   height: 100px;
   background-color: #333;
   color: #fff;
-  text-align: left;
+  text-align: center;
   line-height: 10px; /* Reduced line height to decrease distance between lines */
   box-sizing: border-box;
   padding: 10px;
+  z-index: 1; /* Ensure footer is above other content */
 }
 
 .left-half-box {
@@ -42,4 +46,18 @@
   box-sizing: border-box;
   border-radius: 10px;
   background-color:aliceblue;
+}
+
+.App{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh - 100px; /* Adjusted to account for footer height */
+}
+
+.layo{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh - 100px; /* Adjusted to account for footer height */
 }

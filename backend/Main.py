@@ -3,7 +3,6 @@ import os
 import requests
 from fastapi.middleware.cors import CORSMiddleware
 from telegram import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardRemove, CallbackQuery
-from datetime import datetime, timedelta
 from fastapi.responses import HTMLResponse
 from typing import Dict, List
 from datetime import datetime, timedelta, timezone
@@ -43,6 +42,8 @@ mongo = MongoClient(uri,
 users = mongo['SCDFMyWellness_v2']
 rec = users['Users'] #recruit collection\
 token = users['Token'] #token collection
+Responses = users['Responses'] #responses collection
+textbroadcasts = users['Broadcasts'] #broadcasts collection
 
 
 
@@ -160,4 +161,43 @@ async def text_blast(message: textblast):
     registered_users = rec.find({'registration_status': 'registered'})
     tasks = [send_message(user['_id'], message.message) for user in registered_users]
     await asyncio.gather(*tasks)
+    textbroadcasts.insert_one({'message': message.message, 'time_sent': datetime.now(timezone.utc)})
     return message
+
+class eocinput(BaseModel):
+    startDate: str
+    endDate: str
+
+class eocoutput(BaseModel):
+    total_users: int
+    total_users_reg: int
+    total_qns: int
+    total_broadcasts: int
+
+@app.get("/generateEOC", response_model=eocoutput)
+async def generate_eoc(eoc: eocinput):
+    users = rec.find({
+        'time_joined': {
+            '$gte': datetime.strptime(eoc.startDate, "%Y-%m-%d").replace(tzinfo=timezone.utc),
+            '$lte': datetime.strptime(eoc.endDate, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+        }
+    })
+    total_users = users.count()
+    total_users_reg = rec.find({'registration_status': 'registered'}).count()
+
+    qns = Responses.find({
+        'time_of_query': {
+            '$gte': datetime.strptime(eoc.startDate, "%Y-%m-%d").replace(tzinfo=timezone.utc),
+            '$lte': datetime.strptime(eoc.endDate, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+        }
+    })
+    total_qns = qns.count()
+
+    braodcasts = textbroadcasts.find({
+        'time_sent': {
+            '$gte': datetime.strptime(eoc.startDate, "%Y-%m-%d").replace(tzinfo=timezone.utc),
+            '$lte': datetime.strptime(eoc.endDate, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+        }
+    })
+
+    return eoc

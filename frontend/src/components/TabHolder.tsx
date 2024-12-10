@@ -24,9 +24,24 @@ function TabHolder() {
         <div>
             <h1 className='title'> SCDF MyWellness Dashboard</h1>
             <div className='tabs'>
-                <button className='tab' onClick={() => setActiveTab('Tab1')}>Registration</button>
-                <button className='tab' onClick={() => setActiveTab('Tab2')}>EOC Report Data</button>
-                <button className='tab' onClick={() => setActiveTab('Tab3')}>Text Blast</button>
+                <button 
+                    className={`tab ${activeTab === 'Tab1' ? 'active' : ''}`} 
+                    onClick={() => setActiveTab('Tab1')}
+                >
+                    Registration
+                </button>
+                <button 
+                    className={`tab ${activeTab === 'Tab2' ? 'active' : ''}`} 
+                    onClick={() => setActiveTab('Tab2')}
+                >
+                    EOC Report Data
+                </button>
+                <button 
+                    className={`tab ${activeTab === 'Tab3' ? 'active' : ''}`} 
+                    onClick={() => setActiveTab('Tab3')}
+                >
+                    Text Blast
+                </button>
             </div>
             <div>
                 {renderContent()}
