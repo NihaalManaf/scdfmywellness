@@ -16,7 +16,7 @@
 
 .footers {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: left;
   position: fixed;
   bottom: 0; /* Stick to the bottom of the page */
@@ -25,8 +25,7 @@
   height: 100px;
   background-color: #333;
   color: #fff;
-  text-align: center;
-  line-height: 10px; /* Reduced line height to decrease distance between lines */
+  text-align: left;
   box-sizing: border-box;
   padding: 10px;
   z-index: 1; /* Ensure footer is above other content */
@@ -60,4 +59,9 @@
   justify-content: center;
   align-items: center;
   height: 100vh - 100px; /* Adjusted to account for footer height */
+}
+
+.subfooter{
+  line-height: 5px;
+  margin-top: 7px;
 }

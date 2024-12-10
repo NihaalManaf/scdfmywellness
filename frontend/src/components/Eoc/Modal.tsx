@@ -24,7 +24,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, total_users, total_users
         labels: [
             "Emotional Distress",
             "Salary Details",
-            "ORD & POP [Operationally Ready Date and Passing Out Parade]",
+            "ORD & POP ",
             "Vocations",
             "Sign-on Related",
             "IPPT",
@@ -38,7 +38,13 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, total_users, total_users
         backgroundColor: [
             'rgb(255, 99, 132)',
             'rgb(54, 162, 235)',
-            'rgb(255, 205, 86)'
+            'rgb(255, 205, 86)',
+            'rgb(75, 192, 192)',
+            'rgb(153, 102, 255)',
+            'rgb(255, 159, 64)',
+            'rgb(199, 199, 199)',
+            'rgb(83, 102, 255)',
+            'rgb(255, 99, 71)'
         ],
         hoverOffset: 4
         }]
@@ -66,6 +72,9 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, total_users, total_users
         </div>
         <div className="pie-area">
             <EocChart options={options} data={data}/>
+            <br></br>
+            <br></br>
+            <p><i>Feel free to hover over the pie chart and enable/disable certain categories!</i></p>
         </div>
       </div>
 

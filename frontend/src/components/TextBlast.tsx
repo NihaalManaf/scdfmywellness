@@ -51,24 +51,24 @@ function TextBlast() {
         <div>
           <h2>Text Blast History</h2>
           <table className="table">
-            <thead>
-              <tr>
-                <th scope="col">Date</th>
-                <th scope="col">Message</th>
+            <thead >
+              <tr >
+                <th style={{ backgroundColor: 'aliceblue' }} scope="col">Date</th>
+                <th style={{ backgroundColor: 'aliceblue' }} scope="col">Message</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td>12/12/2021</td>
-                <td>This is just an example - Reminder to complete the survey</td>
+            <tbody >
+              <tr >
+                <td style={{ backgroundColor: 'aliceblue' }} >12/12/2021</td>
+                <td style={{ backgroundColor: 'aliceblue' }}>This is just an example - Reminder to complete the survey</td>
               </tr>
               <tr>
-                <td>13/12/2021</td>
-                <td>Just prototyping - Reminder to complete the homework</td>
+                <td style={{ backgroundColor: 'aliceblue' }} >13/12/2021</td>
+                <td style={{ backgroundColor: 'aliceblue' }} >Just prototyping - Reminder to complete the homework</td>
               </tr>
               <tr>
-                <td>14/12/2021</td>
-                <td>Non Functional Text Blast History - Reminder to complete the survey</td>
+                <td style={{ backgroundColor: 'aliceblue' }} >14/12/2021</td>
+                <td style={{ backgroundColor: 'aliceblue' }} >Non Functional Text Blast History - Reminder to complete the survey</td>
               </tr>
             </tbody>
           </table>
