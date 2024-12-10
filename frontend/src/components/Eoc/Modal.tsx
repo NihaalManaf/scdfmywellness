@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import './Modal.css'; // Add some styles for the overlay and modal
 import EocChart from "./EocChart";
-import { Scale, scales } from "chart.js";
 
 interface ModalProps {
     isOpen: boolean;
