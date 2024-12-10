@@ -137,15 +137,15 @@ Recruits generally book out around 1730hrs on Fridays and book in around 2000hrs
 categorize = """
 You will need to categorize the following question and answer into one of the following topics. You are to only choose from the following topics. Find the best fit for the question and answer.
 
-1. Emotional Distress
-2. Salary Details
-3. ORD & POP [operationally ready date and passing out parade]
-4. Vocations
-5. Sign-on related
-6. IPPT
-7. Training & Leaves
-8. Prohibited Items
-9. Miscellaneous/other
+Emotional Distress
+Salary Details
+ORD & POP [operationally ready date and passing out parade]
+Vocations
+Sign-on related
+IPPT
+Training & Leaves
+Prohibited Items
+Miscellaneous/other
 
 The question and answer will be in the format below:
 
