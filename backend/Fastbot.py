@@ -133,6 +133,25 @@ Recruits generally book out around 1730hrs on Fridays and book in around 2000hrs
 
 """
 
+
+categorize = """
+You will need to categorize the following question and answer into one of the following topics. You are to only choose from the following topics. Find the best fit for the question and answer.
+
+1. Emotional Distress
+2. Salary Details
+3. ORD & POP [operationally ready date and passing out parade]
+4. Vocations
+5. Sign-on related
+6. IPPT
+7. Training & Leaves
+8. Prohibited Items
+9. Miscellaneous/other
+
+The question and answer will be in the format below:
+
+question:answer
+"""
+
 bot = telegram.Bot(telegram_token)
 app = FastAPI()
 mongo = MongoClient(uri,
@@ -296,8 +315,13 @@ async def realtime_convomode(context):
     else:
         if convo_mode == False:
             await send_text(chat_id, "You are registered. You can now proceed with the conversation. To end this mode, press /end.")
+
         response = await openai_req(context)
         await send_text(chat_id, response)
+        
+        category = await categorizer({user_input: response})
+        print(category)
+        Responses.update_one({"query": user_input}, {"$set": {"category": category}})
         return False
 
 async def openai_req(context):
@@ -325,4 +349,21 @@ async def openai_req(context):
     if context['user_input'] != "/convomode": #change this when the command is ste
         Responses.insert_one(new_response)
     
+    return message_content
+
+async def categorizer(cat):
+    client = OpenAI()
+    print("Openai requested")
+    completion = client.chat.completions.create(
+    model="gpt-4o-mini",
+    messages=[
+        {"role": "system", "content": f"{categorize}"},
+        {
+            "role": "user",
+            "content": f"{cat}"
+        }
+        ]
+    )   
+    message = completion.choices[0].message
+    message_content = message.content
     return message_content
