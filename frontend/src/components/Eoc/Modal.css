@@ -20,6 +20,15 @@
     height: 70%; /* Adjust height to cover most of the page */
     max-width: 90vw; /* Adjust max-width relative to viewport width */
     max-height: 90vw; /* Ensure it doesn't exceed the viewport height */
+    display: flex;
+    flex-direction: row; /* Ensure child components are side by side */
+
+}
+
+.modal-content > * {
+    flex: 1;
+    flex-grow: 2;
+     /* Ensure child components take up 50% each */
 }
   
 .modal-close-button {
@@ -31,4 +40,19 @@
     top: 10px;
     right: 10px;
     cursor: pointer;
+}
+
+.pie-area{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+}
+
+.data-area{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  
 }

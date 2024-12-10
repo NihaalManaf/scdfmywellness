@@ -173,6 +173,7 @@ class eocoutput(BaseModel):
     total_users_reg: int
     total_qns: int
     total_broadcasts: int
+    piedata: List[int]
 
 @app.post("/generateEOC", response_model=eocoutput)
 async def generate_eoc(eoc: eocinput):
@@ -191,12 +192,33 @@ async def generate_eoc(eoc: eocinput):
         }
     })
 
-    total_qns = Responses.count_documents({
+    all_responses = Responses.find({
         'time_of_query': {
             '$gte': datetime.strptime(eoc.startDate, "%Y-%m-%d").replace(tzinfo=timezone.utc),
             '$lte': datetime.strptime(eoc.endDate, "%Y-%m-%d").replace(tzinfo=timezone.utc)
         }
     })
+
+    topics = [
+        "Emotional Distress",
+        "Salary Details",
+        "ORD & POP [Operationally Ready Date and Passing Out Parade]",
+        "Vocations",
+        "Sign-on Related",
+        "IPPT",
+        "Training & Leaves",
+        "Prohibited Items",
+        "Miscellaneous/Other"
+    ]
+    total_qns = 0
+    topics_count = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+    for response in all_responses:
+        item = response['category']
+        index = topics.index(item)
+        topics_count[index] += 1
+        total_qns += 1
+
 
     total_broadcasts = textbroadcasts.count_documents({
         'time_sent': {
@@ -205,4 +227,4 @@ async def generate_eoc(eoc: eocinput):
         }
     })
 
-    return eocoutput(total_users=total_users, total_users_reg=total_users_reg, total_qns=total_qns, total_broadcasts=total_broadcasts)
+    return eocoutput(piedata=topics_count, total_users=total_users, total_users_reg=total_users_reg, total_qns=total_qns, total_broadcasts=total_broadcasts)
