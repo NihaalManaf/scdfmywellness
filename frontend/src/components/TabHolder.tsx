@@ -15,6 +15,8 @@ function TabHolder() {
                 return <EocReport />;
             case 'Tab3':
                 return <TextBlast />;
+            case 'Tab4':
+                return "Could automate more features like attedance, etc";
             default:
                 return null;
         }
@@ -41,6 +43,12 @@ function TabHolder() {
                     onClick={() => setActiveTab('Tab3')}
                 >
                     Text Blast
+                </button>
+                <button 
+                    className={`tab ${activeTab === 'Tab4' ? 'active' : ''}`} 
+                    onClick={() => setActiveTab('Tab4')}
+                >
+                    Attendance
                 </button>
             </div>
             <div>
