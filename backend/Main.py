@@ -180,33 +180,27 @@ async def generate_eoc(eoc: eocinput):
     print(eoc.endDate)
     print(type(eoc.startDate))
 
-    users = rec.find({
+    total_users = rec.count_documents({
         'time_joined': {
             '$gte': datetime.strptime(eoc.startDate, "%Y-%m-%d").replace(tzinfo=timezone.utc),
             '$lte': datetime.strptime(eoc.endDate, "%Y-%m-%d").replace(tzinfo=timezone.utc)
         }
     })
-    print(users)
-    print(len(users))
-    total_users = users.count()
-    total_users_reg = rec.find({'registration_status': 'registered'}).count()
+    total_users_reg = rec.count_documents({'registration_status': 'registered'})
 
-    qns = Responses.find({
+    total_qns = Responses.count_documents({
         'time_of_query': {
             '$gte': datetime.strptime(eoc.startDate, "%Y-%m-%d").replace(tzinfo=timezone.utc),
             '$lte': datetime.strptime(eoc.endDate, "%Y-%m-%d").replace(tzinfo=timezone.utc)
         }
     })
-    total_qns = qns.count()
 
-    braodcasts = textbroadcasts.find({
+    total_broadcasts = textbroadcasts.count_documents({
         'time_sent': {
             '$gte': datetime.strptime(eoc.startDate, "%Y-%m-%d").replace(tzinfo=timezone.utc),
             '$lte': datetime.strptime(eoc.endDate, "%Y-%m-%d").replace(tzinfo=timezone.utc)
         }
     })
-
-    total_broadcasts = braodcasts.count()
 
     print(total_users)
     print(total_users_reg)
