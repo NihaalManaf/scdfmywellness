@@ -2,6 +2,7 @@ import DateSelecter from "./Eoc/DateSelecter";
 import './TabHolder.css';
 import { useState } from 'react';
 import Modal from './Eoc/Modal';
+import api from "../api";
 
 function EocReport() {
     const [startDate, setStartDate] = useState<string>("");
@@ -15,6 +16,11 @@ function EocReport() {
     // Modal state
     const [isModalOpen, setIsModalOpen] = useState(false);
 
+    async function fetchEOCdData() {
+      const response = await api.post('/generateEOC', {startDate:{startDate}, endDate:{endDate}} ); 
+      console.log(response)
+    }
+
     // Functions to open and close modal
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
@@ -22,8 +28,7 @@ function EocReport() {
     const handleSubmit = () => {
         console.log("Start Date:", startDate);
         console.log("End Date:", endDate);
-
-        // Open the modal
+        fetchEOCdData();
         openModal();
     };
 

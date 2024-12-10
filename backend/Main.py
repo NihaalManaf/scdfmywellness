@@ -174,7 +174,7 @@ class eocoutput(BaseModel):
     total_qns: int
     total_broadcasts: int
 
-@app.get("/generateEOC", response_model=eocoutput)
+@app.post("/generateEOC", response_model=eocoutput)
 async def generate_eoc(eoc: eocinput):
     users = rec.find({
         'time_joined': {
@@ -200,4 +200,6 @@ async def generate_eoc(eoc: eocinput):
         }
     })
 
-    return eoc
+    total_broadcasts = braodcasts.count()
+
+    return eocoutput(total_users=total_users, total_users_reg=total_users_reg, total_qns=total_qns, total_broadcasts=total_broadcasts)
