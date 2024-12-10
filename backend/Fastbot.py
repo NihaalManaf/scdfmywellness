@@ -343,7 +343,7 @@ async def openai_req(context):
     new_response = {
         "query": context['user_input'],
         "response": message_content,
-        "time_joined": datetime.now(timezone.utc),
+        "time_of_query": datetime.now(timezone.utc),
     }
     
     if context['user_input'] != "/convomode": #change this when the command is ste
