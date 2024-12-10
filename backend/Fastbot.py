@@ -5,7 +5,7 @@ import os
 import requests
 from fastapi.middleware.cors import CORSMiddleware
 from telegram import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardRemove, CallbackQuery
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from fastapi.responses import HTMLResponse
 from typing import Dict, List
 import telegram
@@ -317,11 +317,12 @@ async def openai_req(context):
     message_content = message.content
 
     new_response = {
-        "_id": context['chat_id'],
         "query": context['user_input'],
-        "response": message_content
+        "response": message_content,
+        "time_joined": datetime.now(timezone.utc),
     }
-
-    Responses.insert_one(new_response)
+    
+    if context['user_input'] != "/convomode": #change this when the command is ste
+        Responses.insert_one(new_response)
     
     return message_content
