@@ -18,7 +18,7 @@ function EocReport() {
 
     async function fetchEOCdData() {
       const response = await api.post('/generateEOC', {startDate:{startDate}, endDate:{endDate}} ); 
-      console.log(response)
+      console.log(response) //use state fns here to set values
     }
 
     // Functions to open and close modal

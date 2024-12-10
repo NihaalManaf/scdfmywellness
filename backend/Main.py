@@ -175,7 +175,10 @@ class eocoutput(BaseModel):
     total_broadcasts: int
 
 @app.post("/generateEOC", response_model=eocoutput)
-async def generate_eoc(eoc: eocinput):
+async def generate_eoc(eoc=eocinput):
+    print(eoc.startDate)
+    print(eoc.endDate)
+    print(type(eoc.startDate))
     users = rec.find({
         'time_joined': {
             '$gte': datetime.strptime(eoc.startDate, "%Y-%m-%d").replace(tzinfo=timezone.utc),
@@ -201,5 +204,10 @@ async def generate_eoc(eoc: eocinput):
     })
 
     total_broadcasts = braodcasts.count()
+
+    print(total_users)
+    print(total_users_reg)
+    print(total_qns)
+    print(total_broadcasts)
 
     return eocoutput(total_users=total_users, total_users_reg=total_users_reg, total_qns=total_qns, total_broadcasts=total_broadcasts)
