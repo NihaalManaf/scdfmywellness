@@ -175,7 +175,7 @@ class eocoutput(BaseModel):
     total_broadcasts: int
 
 @app.post("/generateEOC", response_model=eocoutput)
-async def generate_eoc(eoc=eocinput):
+async def generate_eoc(eoc: eocinput):
     print(eoc.startDate)
     print(eoc.endDate)
     print(type(eoc.startDate))
