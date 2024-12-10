@@ -141,6 +141,7 @@ mongo = MongoClient(uri,
 users = mongo['SCDFMyWellness_v2']
 clients = users['Users'] #recruit collection
 token = users['Token'] #token collection
+Responses = users['Responses'] #responses collection
 
 templates = Jinja2Templates(directory="templates")
 app.add_middleware(
@@ -310,12 +311,17 @@ async def openai_req(context):
             "role": "user",
             "content": f"{context['user_input']}"
         }
-    ]
-)   
-    print("openai response")
-    print(completion)
-    print("openai response message")
+        ]
+    )   
     message = completion.choices[0].message
-    print(message)
     message_content = message.content
+
+    new_response = {
+        "_id": context['chat_id'],
+        "query": context['user_input'],
+        "response": message_content
+    }
+
+    Responses.insert_one(new_response)
+    
     return message_content

@@ -6,7 +6,7 @@
   top: 10px; /* Adjusted to account for top margin */
   right: 10px; /* Adjusted to account for right margin */
   width: calc(50% - 20px); /* Adjusted to account for left and right margins */
-  height: calc(100% - 100px); /* Adjusted to account for top, bottom margins and footer height */
+  height: calc(100% - 120px); /* Adjusted to account for top, bottom margins and footer height */
   padding: 20px;
   background: linear-gradient(to bottom right, #a1bee9, #8150da); /* Gradient background */
   border: 1px solid #ccc; /* Temporary border */
@@ -19,11 +19,11 @@
   bottom: 0; /* Removed gap between footer and bottom of page */
   left: 0; /* Full width from the left edge */
   width: 100%; /* Full width of the page */
-  height: 80px;
+  height: 100px;
   background-color: #333;
   color: #fff;
-  text-align: center;
-  line-height: 60px;
+  text-align: left;
+  line-height: 10px; /* Reduced line height to decrease distance between lines */
   box-sizing: border-box;
   padding: 10px;
 }
@@ -36,7 +36,7 @@
   top: 10px; /* Adjusted to account for top margin */
   left: 10px; /* Adjusted to account for left margin */
   width: calc(50% - 20px); /* Adjusted to account for left and right margins */
-  height: calc(100% - 100px); /* Adjusted to account for top, bottom margins and footer height */
+  height: calc(100% - 120px); /* Adjusted to account for top, bottom margins and footer height */
   padding: 20px;
   border: 1px solid #ccc; /* Temporary border */
   box-sizing: border-box;
