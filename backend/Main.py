@@ -202,13 +202,13 @@ async def generate_eoc(eoc: eocinput):
     topics = [
         "Emotional Distress",
         "Salary Details",
-        "ORD & POP [Operationally Ready Date and Passing Out Parade]",
+        "ORD & POP [operationally ready date and passing out parade]",
         "Vocations",
-        "Sign-on Related",
+        "Sign-on related",
         "IPPT",
         "Training & Leaves",
         "Prohibited Items",
-        "Miscellaneous/Other"
+        "Miscellaneous/other"
     ]
     total_qns = 0
     topics_count = [0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -227,4 +227,4 @@ async def generate_eoc(eoc: eocinput):
         }
     })
 
-    return eocoutput(piedata=topics_count, total_users=total_users, total_users_reg=total_users_reg, total_qns=total_qns, total_broadcasts=total_broadcasts)
+    return eocoutput(piedata=[int(count) for count in topics_count], total_users=total_users, total_users_reg=total_users_reg, total_qns=total_qns, total_broadcasts=total_broadcasts)
